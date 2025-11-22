@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import DeepfakeDetector from './components/DeepfakeDetector';
-import './index.css';
+import { useState } from "react";
+import DeepfakeDetector from "./components/DeepfakeDetector";
+import "./index.css";
 
 function App() {
   return (

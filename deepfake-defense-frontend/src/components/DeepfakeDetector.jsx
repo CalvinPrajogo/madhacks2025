@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import VoiceRecorder from './VoiceRecorder';
-import FileUpload from './FileUpload';
-import ResultDisplay from './ResultDisplay';
-import { api } from '../utils/api';
+import { useState } from "react";
+import VoiceRecorder from "./VoiceRecorder";
+import FileUpload from "./FileUpload";
+import ResultDisplay from "./ResultDisplay";
+import { api } from "../utils/api";
 
 export default function DeepfakeDetector() {
   const [audioFile, setAudioFile] = useState(null);
@@ -20,15 +20,14 @@ export default function DeepfakeDetector() {
       // Run both analyses in parallel
       const [deepfakeResult, watermarkCheck] = await Promise.all([
         api.detectDeepfake(file),
-        api.detectWatermark(file)
+        api.detectWatermark(file),
       ]);
 
       setResult(deepfakeResult);
       setWatermarkResult(watermarkCheck);
-
     } catch (error) {
-      console.error('Analysis error:', error);
-      alert('Failed to analyze audio. Please try again.');
+      console.error("Analysis error:", error);
+      alert("Failed to analyze audio. Please try again.");
     } finally {
       setAnalyzing(false);
     }
@@ -52,7 +51,7 @@ export default function DeepfakeDetector() {
             disabled={analyzing}
             className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-bold text-lg transition-colors"
           >
-            {analyzing ? '🔍 Analyzing...' : '🔍 Analyze Audio'}
+            {analyzing ? "🔍 Analyzing..." : "🔍 Analyze Audio"}
           </button>
         </div>
       )}

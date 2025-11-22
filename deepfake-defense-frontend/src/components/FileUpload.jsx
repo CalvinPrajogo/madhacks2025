@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function FileUpload({ onFileSelected }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -27,28 +27,28 @@ export default function FileUpload({ onFileSelected }) {
   };
 
   const handleFile = (file) => {
-    if (file && file.type.startsWith('audio/')) {
+    if (file && file.type.startsWith("audio/")) {
       setSelectedFile(file);
       if (onFileSelected) {
         onFileSelected(file);
       }
     } else {
-      alert('Please upload an audio file (WAV, MP3, etc.)');
+      alert("Please upload an audio file (WAV, MP3, etc.)");
     }
   };
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg">
       <h3 className="text-xl font-bold mb-4">📁 Upload Audio File</h3>
-      
+
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-          isDragging 
-            ? 'border-blue-500 bg-blue-500/10' 
-            : 'border-gray-600 hover:border-gray-500'
+          isDragging
+            ? "border-blue-500 bg-blue-500/10"
+            : "border-gray-600 hover:border-gray-500"
         }`}
       >
         <input
@@ -58,17 +58,16 @@ export default function FileUpload({ onFileSelected }) {
           className="hidden"
           id="audio-upload"
         />
-        
+
         <label htmlFor="audio-upload" className="cursor-pointer">
           <div className="text-4xl mb-4">📁</div>
           <p className="text-lg">
             Drag and drop audio file here
-            <br />or click to browse
+            <br />
+            or click to browse
           </p>
           {selectedFile && (
-            <p className="mt-4 text-blue-400">
-              Selected: {selectedFile.name}
-            </p>
+            <p className="mt-4 text-blue-400">Selected: {selectedFile.name}</p>
           )}
         </label>
       </div>
