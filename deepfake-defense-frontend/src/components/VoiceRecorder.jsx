@@ -86,12 +86,14 @@ export default function VoiceRecorder({ onRecordingComplete }) {
             isRecording ? "border-red-500" : "border-white"
           }`}
         />
-        
+
         {/* Microphone Icon */}
         <img
           src={microphoneIcon}
           alt="Microphone"
-          className={`transition-opacity ${isRecording ? "opacity-80" : "opacity-100"}`}
+          className={`transition-opacity ${
+            isRecording ? "opacity-80" : "opacity-100"
+          }`}
         />
       </button>
 
