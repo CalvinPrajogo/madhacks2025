@@ -50,11 +50,11 @@ export default function FileUpload({ onFileSelected, clearRef }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div 
-        className="relative" 
-        style={{ 
-          width: "280px", 
-          height: "280px"
+      <div
+        className="relative"
+        style={{
+          width: "280px",
+          height: "280px",
         }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -64,22 +64,22 @@ export default function FileUpload({ onFileSelected, clearRef }) {
           ref={buttonRef}
           htmlFor="audio-upload"
           className={`group absolute inset-0 m-auto flex items-center justify-center cursor-pointer transition-opacity duration-300 ${
-            isDragging ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+            isDragging ? "opacity-100" : "opacity-60 hover:opacity-100"
           }`}
-          style={{ 
-            width: "260px", 
-            height: "260px"
+          style={{
+            width: "260px",
+            height: "260px",
           }}
           onMouseEnter={() => {
             if (!isDragging) {
-              const img = buttonRef.current?.querySelector('img');
-              if (img) img.style.transform = 'scale(1.03)';
+              const img = buttonRef.current?.querySelector("img");
+              if (img) img.style.transform = "scale(1.03)";
             }
           }}
           onMouseLeave={() => {
             if (!isDragging) {
-              const img = buttonRef.current?.querySelector('img');
-              if (img) img.style.transform = 'scale(1)';
+              const img = buttonRef.current?.querySelector("img");
+              if (img) img.style.transform = "scale(1)";
             }
           }}
         >
@@ -111,11 +111,11 @@ export default function FileUpload({ onFileSelected, clearRef }) {
             src={dragDropIcon}
             alt="Upload"
             className="transition-transform duration-300"
-            style={{ 
-              width: "200px", 
-              height: "200px", 
+            style={{
+              width: "200px",
+              height: "200px",
               objectFit: "contain",
-              transform: isDragging ? 'scale(1.03)' : 'scale(1)'
+              transform: isDragging ? "scale(1.03)" : "scale(1)",
             }}
           />
 

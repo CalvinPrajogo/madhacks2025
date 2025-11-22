@@ -55,7 +55,7 @@ export default function CustomAudioPlayer({ src }) {
   return (
     <div className="flex items-center gap-3 w-full">
       <audio ref={audioRef} src={src} />
-      
+
       {/* Play/Pause Button */}
       <button
         onClick={togglePlayPause}
@@ -89,10 +89,10 @@ export default function CustomAudioPlayer({ src }) {
         />
         <div
           className="absolute w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          style={{ 
-            left: `${progress}%`, 
-            top: '50%',
-            transform: 'translate(-50%, -50%)'
+          style={{
+            left: `${progress}%`,
+            top: "50%",
+            transform: "translate(-50%, -50%)",
           }}
         />
       </div>

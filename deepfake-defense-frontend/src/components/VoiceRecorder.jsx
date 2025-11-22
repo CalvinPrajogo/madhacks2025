@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import microphoneIcon from "../assets/microphone_2px.png";
 
-export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL }) {
+export default function VoiceRecorder({
+  onRecordingComplete,
+  clearRef,
+  audioURL,
+}) {
   const [isRecording, setIsRecording] = useState(false);
   const [internalAudioURL, setInternalAudioURL] = useState("");
   const [recordingTime, setRecordingTime] = useState(0);
@@ -30,10 +34,10 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
   // Start drawing waveform when recording begins and canvas is ready
   useEffect(() => {
     if (isRecording && canvasRef.current && analyserRef.current) {
-      console.log('Starting waveform animation');
+      console.log("Starting waveform animation");
       drawWaveform();
     }
-    
+
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -45,7 +49,7 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
     if (!canvasRef.current || !analyserRef.current) return;
 
     const canvas = canvasRef.current;
-    const canvasCtx = canvas.getContext('2d');
+    const canvasCtx = canvas.getContext("2d");
     const analyser = analyserRef.current;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
@@ -59,7 +63,7 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
 
       // Draw waveform
       canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = '#0094c6';
+      canvasCtx.strokeStyle = "#0094c6";
       canvasCtx.beginPath();
 
       const sliceWidth = (canvas.width * 1.0) / bufferLength;
@@ -98,7 +102,8 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
       setIsRecording(true);
 
       // Set up audio visualization
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      audioContextRef.current = new (window.AudioContext ||
+        window.webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
       const source = audioContextRef.current.createMediaStreamSource(stream);
       source.connect(analyserRef.current);
@@ -124,7 +129,7 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
 
         // Stop all tracks
         stream.getTracks().forEach((track) => track.stop());
-        
+
         // Clean up audio context
         if (audioContextRef.current) {
           audioContextRef.current.close();
@@ -169,27 +174,27 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
         {/* Outer rotating dotted circle */}
         <div
           className="absolute inset-0 rounded-full border-dotted border-white/40"
-          style={{ 
+          style={{
             borderWidth: "4px",
-            animation: "spin-slow 40s linear infinite"
+            animation: "spin-slow 40s linear infinite",
           }}
         />
-        
+
         <button
           ref={buttonRef}
           onClick={isRecording ? stopRecording : startRecording}
           className="group absolute inset-0 m-auto flex items-center justify-center cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300"
-          style={{ 
-            width: "260px", 
-            height: "260px"
+          style={{
+            width: "260px",
+            height: "260px",
           }}
           onMouseEnter={() => {
-            const img = buttonRef.current?.querySelector('img');
-            if (img) img.style.transform = 'scale(1.03)';
+            const img = buttonRef.current?.querySelector("img");
+            if (img) img.style.transform = "scale(1.03)";
           }}
           onMouseLeave={() => {
-            const img = buttonRef.current?.querySelector('img');
-            if (img) img.style.transform = 'scale(1)';
+            const img = buttonRef.current?.querySelector("img");
+            if (img) img.style.transform = "scale(1)";
           }}
         >
           {/* Inner solid circle */}
@@ -204,12 +209,12 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
             src={microphoneIcon}
             alt="Microphone"
             className="transition-all duration-500 absolute"
-            style={{ 
-              width: "200px", 
-              height: "200px", 
+            style={{
+              width: "200px",
+              height: "200px",
               objectFit: "contain",
               opacity: isRecording ? 0 : 1,
-              transform: isRecording ? 'scale(0.95)' : 'scale(1)'
+              transform: isRecording ? "scale(0.95)" : "scale(1)",
             }}
           />
           <canvas
@@ -217,16 +222,20 @@ export default function VoiceRecorder({ onRecordingComplete, clearRef, audioURL 
             width="240"
             height="120"
             className="z-10 transition-opacity duration-500"
-            style={{ 
-              imageRendering: 'crisp-edges',
-              opacity: isRecording ? 1 : 0
+            style={{
+              imageRendering: "crisp-edges",
+              opacity: isRecording ? 1 : 0,
             }}
           />
         </button>
       </div>
 
       <p className="text-lg font-bold uppercase tracking-widest font-dm-sans mt-2">
-        {isRecording ? "Recording..." : hasRecorded ? "Re-Record Audio" : "Record Audio"}
+        {isRecording
+          ? "Recording..."
+          : hasRecorded
+          ? "Re-Record Audio"
+          : "Record Audio"}
       </p>
 
       {isRecording && (
