@@ -32,7 +32,12 @@ app.add_middleware(
 )
 
 # Initialize components
-watermarker = AudioWatermarker()
+watermarker = AudioWatermarker()  # Always uses 19kHz for demo
+
+# For per-user watermarking in the future:
+# - Accept a user ID or username in the request
+# - Look up the user's assigned frequency
+# - Pass frequency to AudioWatermarker(frequency=...) when embedding/detecting
 detector = DeepfakeDetector()
 fish_client = FishAudioClient()
 

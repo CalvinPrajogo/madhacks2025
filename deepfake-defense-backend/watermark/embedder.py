@@ -9,6 +9,8 @@ class AudioWatermarker:
     """
 
     def __init__(self, frequency: int = 19000, strength: float = 0.02):
+        # For hackathon demo: always use fixed frequency (19kHz)
+        # To support per-user watermarking in the future, set frequency based on user info here
         """
         Initialize the watermarker.
 
