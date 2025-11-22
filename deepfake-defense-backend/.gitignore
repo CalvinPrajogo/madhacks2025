@@ -6,3 +6,9 @@ __pycache__/
 *.mp3
 temp_*
 .DS_Store
+
+# Temporary test files
+test_fish_*.py
+*_test.wav
+synthesized*.wav
+watermarked*.wav

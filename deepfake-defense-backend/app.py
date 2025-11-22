@@ -5,6 +5,7 @@ import soundfile as sf
 import io
 import os
 import tempfile
+import httpx
 from datetime import datetime
 from typing import Optional
 
@@ -223,12 +224,16 @@ async def analyze_audio(audio: UploadFile = File(...)):
 
 
 @app.post("/api/clone-voice")
-async def clone_voice(audio: UploadFile = File(...)):
+async def clone_voice(
+    audio: UploadFile = File(...),
+    title: str = Form(default="Cloned Voice")
+):
     """
     Clone voice using Fish Audio API.
 
     Args:
         audio: Audio sample for voice cloning
+        title: Name for the voice model (optional, default: "Cloned Voice")
 
     Returns:
         Voice ID and metadata
@@ -241,16 +246,21 @@ async def clone_voice(audio: UploadFile = File(...)):
             temp_path = tmp.name
 
         # Clone via Fish Audio
-        result = await fish_client.clone_voice(temp_path)
+        result = await fish_client.clone_voice(temp_path, title=title)
 
         return {
             "status": "success",
-            "voice_id": result.get("voice_id"),
-            "message": "Voice cloned successfully"
+            "data": result,
+            "message": "Voice model created successfully. Use the voice_id for synthesis."
         }
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Fish Audio API error: {e.response.text}"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error cloning voice: {str(e)}")
 
@@ -262,21 +272,40 @@ async def clone_voice(audio: UploadFile = File(...)):
 @app.post("/api/synthesize")
 async def synthesize_speech(
     text: str = Form(...),
-    voice_id: str = Form(...)
+    voice_id: str = Form(default=None)
 ):
     """
-    Generate speech with cloned voice.
+    Generate speech with Fish Audio TTS.
 
     Args:
         text: Text to synthesize
-        voice_id: ID of cloned voice to use
+        voice_id: Optional ID of cloned voice (currently not supported by Fish Audio API)
 
     Returns:
         Synthesized audio file
+
+    Note:
+        Custom voice models created via /api/clone-voice cannot currently be used
+        with the TTS API (returns "Reference not found"). This endpoint generates
+        speech with Fish Audio's default voice, which can still be used to demonstrate
+        deepfake detection.
     """
     try:
-        # Generate speech
-        audio_bytes = await fish_client.synthesize(text, voice_id)
+        if voice_id:
+            # Try with custom voice (may not work)
+            try:
+                audio_bytes = await fish_client.synthesize(text, voice_id)
+            except httpx.HTTPStatusError as e:
+                if "Reference not found" in str(e.response.text):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Custom voice model {voice_id} cannot be used for TTS yet. "
+                               "Using default voice instead. Remove voice_id parameter to avoid this error."
+                    )
+                raise
+        else:
+            # Use default voice (always works)
+            audio_bytes = await fish_client.synthesize(text, None)
 
         return Response(
             content=audio_bytes,
@@ -288,6 +317,11 @@ async def synthesize_speech(
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Fish Audio API error: {e.response.text}"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error synthesizing speech: {str(e)}")
 
