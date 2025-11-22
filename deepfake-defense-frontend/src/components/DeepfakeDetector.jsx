@@ -13,6 +13,7 @@ export default function DeepfakeDetector() {
   const [result, setResult] = useState(null);
   const [watermarkResult, setWatermarkResult] = useState(null);
   const [audioSource, setAudioSource] = useState(null); // 'recorded' or 'uploaded'
+  const [useWatermark, setUseWatermark] = useState(false);
   const recorderClearRef = useState({ current: null })[0];
   const uploadClearRef = useState({ current: null })[0];
 
@@ -33,10 +34,18 @@ export default function DeepfakeDetector() {
     setWatermarkResult(null);
 
     try {
+      let fileToAnalyze = file;
+
+      // If toggle is ON, embed watermark first
+      if (useWatermark) {
+        const watermarkedBlob = await api.embedWatermark(file);
+        fileToAnalyze = new File([watermarkedBlob], "watermarked.wav", { type: "audio/wav" });
+      }
+
       // Run both analyses in parallel
       const [deepfakeResult, watermarkCheck] = await Promise.all([
-        api.detectDeepfake(file),
-        api.detectWatermark(file),
+        api.detectDeepfake(fileToAnalyze),
+        api.detectWatermark(fileToAnalyze),
       ]);
 
       setResult(deepfakeResult);
@@ -61,6 +70,25 @@ export default function DeepfakeDetector() {
           audioURL ? "-translate-y-12" : "translate-y-0"
         } transition-all duration-500`}
       >
+        {/* Watermark toggle */}
+        <div className="flex items-center justify-center mb-6">
+          <label className="flex items-center gap-3 cursor-pointer select-none group">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={useWatermark}
+                onChange={e => setUseWatermark(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </div>
+            <span className="text-lg font-dm-sans uppercase tracking-wide group-hover:text-green-400 transition-colors">
+              {useWatermark ? "🛡️ Watermark Enabled" : "Watermark Disabled"}
+            </span>
+          </label>
+        </div>
+
         <div className="relative grid grid-cols-2 gap-8 mb-6 items-center">
           <VoiceRecorder
             onRecordingComplete={(file, url) =>
