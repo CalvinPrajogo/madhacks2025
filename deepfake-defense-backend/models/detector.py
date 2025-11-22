@@ -1,7 +1,10 @@
+
+import os
 import librosa
 import numpy as np
 from scipy import stats
 from typing import Dict
+
 
 
 class DeepfakeDetector:
@@ -9,6 +12,15 @@ class DeepfakeDetector:
     Detects AI-generated speech using spectral analysis and acoustic features.
     Analyzes audio for artifacts typical of synthetic voices.
     """
+
+    def debug_read_uploadfile(self, upload_file):
+        import soundfile as sf
+        try:
+            upload_file.file.seek(0)
+            data, samplerate = sf.read(upload_file.file)
+            print(f"[DEBUG] soundfile.read (in-memory): data.shape={data.shape}, samplerate={samplerate}, data[:10]={data[:10] if len(data) >= 10 else data}")
+        except Exception as e:
+            print(f"[DEBUG] soundfile.read (in-memory) failed: {e}")
 
     def __init__(self):
         """Initialize the deepfake detector."""
@@ -24,8 +36,31 @@ class DeepfakeDetector:
         Returns:
             Dictionary of extracted features
         """
-        # Load audio file
+        # Log file path and size before loading
+        try:
+            file_size = os.path.getsize(audio_path)
+        except Exception as e:
+            file_size = f"Error: {e}"
+        print(f"[DEBUG] About to load audio file: {audio_path}, size={file_size} bytes")
+        # Print first 32 bytes of the file for header check
+        try:
+            with open(audio_path, 'rb') as f:
+                header_bytes = f.read(32)
+            print(f"[DEBUG] First 32 bytes: {header_bytes}")
+        except Exception as e:
+            print(f"[DEBUG] Could not read file header: {e}")
+
+        # Try loading with soundfile first
+        import soundfile as sf
+        try:
+            y_sf, sr_sf = sf.read(audio_path)
+            print(f"[DEBUG] soundfile.read: y.shape={y_sf.shape}, sr={sr_sf}, y[:10]={y_sf[:10] if len(y_sf) >= 10 else y_sf}")
+        except Exception as e:
+            print(f"[DEBUG] soundfile.read failed: {e}")
+
+        # Load audio file with librosa (as before)
         y, sr = librosa.load(audio_path, sr=None)
+        print(f"[DEBUG] librosa.load: y.shape={y.shape}, sr={sr}, y[:10]={y[:10] if len(y) >= 10 else y}")
 
         features = {}
 
@@ -72,6 +107,7 @@ class DeepfakeDetector:
         features['contrast_mean'] = float(np.mean(spectral_contrast))
         features['contrast_std'] = float(np.std(spectral_contrast))
 
+        print(f"[DEBUG] Extracted features: {features}")
         return features
 
     def detect(self, audio_path: str) -> Dict:
@@ -124,6 +160,7 @@ class DeepfakeDetector:
 
         # Clamp score to 0-1 range
         score = max(0.0, min(1.0, score))
+        print(f"[DEBUG] Deepfake score: {score}")
 
         # Determine if deepfake
         is_deepfake = score > 0.65
@@ -136,9 +173,11 @@ class DeepfakeDetector:
         else:
             risk_level = "HIGH"
 
-        return {
+        result = {
             "is_deepfake": is_deepfake,
             "confidence": round(score, 3),
             "risk_level": risk_level,
             "features": features
         }
+        print(f"[DEBUG] Detection result: {result}")
+        return result

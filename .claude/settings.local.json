@@ -8,7 +8,12 @@
       "Bash(python test_generate_audio.py:*)",
       "Bash(uvicorn app:app:*)",
       "Bash(curl:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(cd:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

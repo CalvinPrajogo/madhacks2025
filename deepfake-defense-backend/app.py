@@ -1,6 +1,8 @@
+
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from pydantic import BaseModel
 import soundfile as sf
 import io
 import os
@@ -8,6 +10,7 @@ import tempfile
 import httpx
 from datetime import datetime
 from typing import Optional
+import ffmpeg
 
 from watermark.embedder import AudioWatermarker
 from models.detector import DeepfakeDetector
@@ -124,7 +127,13 @@ async def detect_watermark(audio: UploadFile = File(...)):
 
 
 @app.post("/api/detect")
+
 async def detect_deepfake(audio: UploadFile = File(...)):
+    # Debug: Try reading the upload directly in memory before saving
+    from models.detector import DeepfakeDetector
+    DeepfakeDetector().debug_read_uploadfile(audio)
+    # Reset file pointer after in-memory read
+    audio.file.seek(0)
     """
     Analyze audio for deepfake indicators.
 
@@ -135,14 +144,34 @@ async def detect_deepfake(audio: UploadFile = File(...)):
         Detection results with risk level and confidence
     """
     temp_path = None
+    converted_path = None
     try:
-        # Save to temp file (librosa needs file path)
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp:
+        # Save uploaded file to temp file (keep original extension)
+        orig_ext = os.path.splitext(audio.filename)[-1].lower()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=orig_ext) as tmp:
             tmp.write(await audio.read())
             temp_path = tmp.name
 
+        # If not wav, convert to wav using ffmpeg
+        if orig_ext != '.wav':
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as out_tmp:
+                converted_path = out_tmp.name
+            try:
+                (
+                    ffmpeg
+                    .input(temp_path)
+                    .output(converted_path, format='wav', acodec='pcm_s16le', ac=1, ar='16000')
+                    .overwrite_output()
+                    .run(quiet=True)
+                )
+            except Exception as conv_e:
+                raise HTTPException(status_code=400, detail=f"Failed to convert audio to WAV: {str(conv_e)}")
+            audio_path = converted_path
+        else:
+            audio_path = temp_path
+
         # Detect deepfake
-        result = detector.detect(temp_path)
+        result = detector.detect(audio_path)
 
         return {
             "status": "success",
@@ -153,9 +182,11 @@ async def detect_deepfake(audio: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error detecting deepfake: {str(e)}")
 
     finally:
-        # Cleanup temp file
+        # Cleanup temp files
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
+        if converted_path and os.path.exists(converted_path):
+            os.remove(converted_path)
 
 
 @app.post("/api/analyze")
@@ -269,17 +300,18 @@ async def clone_voice(
             os.remove(temp_path)
 
 
+class SynthesizeRequest(BaseModel):
+    text: str
+    voice_id: Optional[str] = None
+
+
 @app.post("/api/synthesize")
-async def synthesize_speech(
-    text: str = Form(...),
-    voice_id: str = Form(default=None)
-):
+async def synthesize_speech(request: SynthesizeRequest):
     """
     Generate speech with Fish Audio TTS.
 
     Args:
-        text: Text to synthesize
-        voice_id: Optional ID of cloned voice (currently not supported by Fish Audio API)
+        request: JSON body with text and optional voice_id
 
     Returns:
         Synthesized audio file
@@ -290,6 +322,8 @@ async def synthesize_speech(
         speech with Fish Audio's default voice, which can still be used to demonstrate
         deepfake detection.
     """
+    text = request.text
+    voice_id = request.voice_id
     try:
         if voice_id:
             # Try with custom voice (may not work)
