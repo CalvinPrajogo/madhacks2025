@@ -152,8 +152,8 @@ async def detect_deepfake(audio: UploadFile = File(...)):
             tmp.write(await audio.read())
             temp_path = tmp.name
 
-        # If not wav, convert to wav using ffmpeg
-        if orig_ext != '.wav':
+        # If not wav, convert to wav using ffmpeg (support webm, m4a, etc.)
+        if orig_ext not in ['.wav']:
             with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as out_tmp:
                 converted_path = out_tmp.name
             try:
@@ -162,9 +162,12 @@ async def detect_deepfake(audio: UploadFile = File(...)):
                     .input(temp_path)
                     .output(converted_path, format='wav', acodec='pcm_s16le', ac=1, ar='16000')
                     .overwrite_output()
-                    .run(quiet=True)
+                    .run(capture_stdout=True, capture_stderr=True)
                 )
             except Exception as conv_e:
+                import traceback
+                print("[FFMPEG ERROR] Conversion failed:")
+                traceback.print_exc()
                 raise HTTPException(status_code=400, detail=f"Failed to convert audio to WAV: {str(conv_e)}")
             audio_path = converted_path
         else:
