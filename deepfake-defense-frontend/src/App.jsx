@@ -4,7 +4,11 @@ import "./index.css";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen">
+      {/* Floating bubbles */}
+      {[...Array(10)].map((_, i) => (
+        <div key={i} className="bubble" />
+      ))}
       <DeepfakeDetector />
     </div>
   );
