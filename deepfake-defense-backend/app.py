@@ -5,6 +5,7 @@ import soundfile as sf
 import io
 import os
 import tempfile
+import httpx
 from datetime import datetime
 from typing import Optional
 
@@ -223,12 +224,16 @@ async def analyze_audio(audio: UploadFile = File(...)):
 
 
 @app.post("/api/clone-voice")
-async def clone_voice(audio: UploadFile = File(...)):
+async def clone_voice(
+    audio: UploadFile = File(...),
+    title: str = Form(default="Cloned Voice")
+):
     """
     Clone voice using Fish Audio API.
 
     Args:
         audio: Audio sample for voice cloning
+        title: Name for the voice model (optional, default: "Cloned Voice")
 
     Returns:
         Voice ID and metadata
@@ -241,16 +246,21 @@ async def clone_voice(audio: UploadFile = File(...)):
             temp_path = tmp.name
 
         # Clone via Fish Audio
-        result = await fish_client.clone_voice(temp_path)
+        result = await fish_client.clone_voice(temp_path, title=title)
 
         return {
             "status": "success",
-            "voice_id": result.get("voice_id"),
-            "message": "Voice cloned successfully"
+            "data": result,
+            "message": "Voice model created successfully. Use the voice_id for synthesis."
         }
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Fish Audio API error: {e.response.text}"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error cloning voice: {str(e)}")
 
