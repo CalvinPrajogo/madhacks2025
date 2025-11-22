@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import microphoneIcon from "../assets/microphone_2px.png";
 
 export default function VoiceRecorder({ onRecordingComplete }) {
   const [isRecording, setIsRecording] = useState(false);
@@ -71,31 +72,44 @@ export default function VoiceRecorder({ onRecordingComplete }) {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
-      <h3 className="text-xl font-bold mb-4">🎤 Record Your Voice</h3>
-
-      <div className="flex flex-col items-center gap-4">
-        <button
-          onClick={isRecording ? stopRecording : startRecording}
-          className={`px-8 py-4 rounded-full text-lg font-bold transition-all ${
-            isRecording
-              ? "bg-red-600 hover:bg-red-700 animate-pulse"
-              : "bg-blue-600 hover:bg-blue-700"
+    <div className="flex flex-col items-center gap-6">
+      <button
+        onClick={isRecording ? stopRecording : startRecording}
+        className={`relative flex items-center justify-center transition-all ${
+          isRecording ? "animate-pulse" : ""
+        }`}
+        style={{ width: "300px", height: "300px" }}
+      >
+        {/* Outer circle */}
+        <div
+          className={`absolute inset-0 rounded-full border-2 transition-colors ${
+            isRecording ? "border-red-500" : "border-white"
           }`}
-        >
-          {isRecording ? "⏹ Stop Recording" : "🎤 Start Recording"}
-        </button>
+        />
+        
+        {/* Microphone Icon */}
+        <img
+          src={microphoneIcon}
+          alt="Microphone"
+          className={`transition-opacity ${isRecording ? "opacity-80" : "opacity-100"}`}
+        />
+      </button>
 
-        {isRecording && (
-          <div className="text-2xl font-mono">{formatTime(recordingTime)}</div>
-        )}
+      <p className="text-2xl uppercase tracking-widest font-dm-sans">
+        {isRecording ? "Recording..." : "Record Your Voice"}
+      </p>
 
-        {audioURL && (
-          <div className="w-full">
-            <audio src={audioURL} controls className="w-full" />
-          </div>
-        )}
-      </div>
+      {isRecording && (
+        <div className="text-xl font-mono text-gray-300">
+          {formatTime(recordingTime)}
+        </div>
+      )}
+
+      {audioURL && (
+        <div className="w-full max-w-md">
+          <audio src={audioURL} controls className="w-full" />
+        </div>
+      )}
     </div>
   );
 }
