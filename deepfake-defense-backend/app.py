@@ -107,12 +107,58 @@ async def detect_watermark(audio: UploadFile = File(...)):
         Detection results with confidence score
     """
     try:
-        # Read uploaded audio
-        audio_bytes = await audio.read()
-        audio_data, sample_rate = sf.read(io.BytesIO(audio_bytes))
 
-        # Detect watermark
-        has_watermark, confidence = watermarker.detect(audio_data, sample_rate)
+        # Read uploaded audio
+        import tempfile
+        import ffmpeg
+        audio_bytes = await audio.read()
+        print(f"[WATERMARK DEBUG] Uploaded audio size: {len(audio_bytes)} bytes, filename: {audio.filename}")
+        orig_ext = os.path.splitext(audio.filename)[-1].lower() if audio.filename else ''
+        temp_path = None
+        converted_path = None
+        try:
+            # Save uploaded file to temp file (keep original extension if possible)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=orig_ext or '.webm') as tmp:
+                tmp.write(audio_bytes)
+                temp_path = tmp.name
+
+            # If not wav, convert to wav using ffmpeg
+            if orig_ext != '.wav':
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as out_tmp:
+                    converted_path = out_tmp.name
+                try:
+                    (
+                        ffmpeg
+                        .input(temp_path)
+                        .output(converted_path, format='wav', acodec='pcm_s16le', ac=1, ar='16000')
+                        .overwrite_output()
+                        .run(capture_stdout=True, capture_stderr=True)
+                    )
+                except Exception as conv_e:
+                    import traceback
+                    print("[WATERMARK FFMPEG ERROR] Conversion failed:")
+                    traceback.print_exc()
+                    raise HTTPException(status_code=400, detail=f"Failed to convert audio to WAV: {str(conv_e)}")
+                audio_path = converted_path
+            else:
+                audio_path = temp_path
+
+            # Now read as wav
+            try:
+                audio_data, sample_rate = sf.read(audio_path)
+                print(f"[WATERMARK DEBUG] sf.read: audio_data.shape={getattr(audio_data, 'shape', None)}, sample_rate={sample_rate}, audio_data[:10]={audio_data[:10] if hasattr(audio_data, '__getitem__') else audio_data}")
+            except Exception as sf_e:
+                print(f"[WATERMARK ERROR] soundfile.read failed: {sf_e}")
+                raise HTTPException(status_code=400, detail=f"soundfile.read failed: {sf_e}")
+
+            # Detect watermark
+            has_watermark, confidence = watermarker.detect(audio_data, sample_rate)
+        finally:
+            # Cleanup temp files
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
+            if converted_path and os.path.exists(converted_path):
+                os.remove(converted_path)
 
         return {
             "status": "success",
@@ -123,6 +169,9 @@ async def detect_watermark(audio: UploadFile = File(...)):
         }
 
     except Exception as e:
+        import traceback
+        print("[WATERMARK ERROR] Exception in /api/watermark/detect:")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error detecting watermark: {str(e)}")
 
 
