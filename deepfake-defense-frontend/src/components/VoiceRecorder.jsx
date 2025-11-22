@@ -20,7 +20,15 @@ export default function VoiceRecorder({ onRecordingComplete }) {
         },
       });
 
-      mediaRecorder.current = new MediaRecorder(stream);
+      // Use the browser's supported MIME type
+      const options = { mimeType: 'audio/webm' };
+      if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        console.warn('audio/webm not supported, using default');
+        mediaRecorder.current = new MediaRecorder(stream);
+      } else {
+        mediaRecorder.current = new MediaRecorder(stream, options);
+      }
+
       audioChunks.current = [];
 
       mediaRecorder.current.ondataavailable = (event) => {
@@ -28,13 +36,17 @@ export default function VoiceRecorder({ onRecordingComplete }) {
       };
 
       mediaRecorder.current.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
+        // Use the actual MIME type from the MediaRecorder
+        const mimeType = mediaRecorder.current.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunks.current, { type: mimeType });
         const url = URL.createObjectURL(audioBlob);
         setAudioURL(url);
 
-        // Pass blob to parent
+        // Pass blob to parent as a File object with proper extension
         if (onRecordingComplete) {
-          onRecordingComplete(audioBlob);
+          const extension = mimeType.includes('webm') ? 'webm' : 'wav';
+          const file = new File([audioBlob], `recording.${extension}`, { type: mimeType });
+          onRecordingComplete(file);
         }
 
         // Stop all tracks

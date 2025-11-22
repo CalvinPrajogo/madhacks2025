@@ -74,29 +74,73 @@ async def embed_watermark(audio: UploadFile = File(...)):
     Returns:
         Watermarked audio file
     """
+    import traceback
+    import tempfile
+    import ffmpeg
+    import os
     try:
-        # Read uploaded audio
         audio_bytes = await audio.read()
-        audio_data, sample_rate = sf.read(io.BytesIO(audio_bytes))
+        orig_ext = os.path.splitext(audio.filename)[-1].lower() if audio.filename else ''
+        temp_path = None
+        converted_path = None
+        try:
+            # Save uploaded file to temp file (keep original extension if possible)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=orig_ext or '.webm') as tmp:
+                tmp.write(audio_bytes)
+                temp_path = tmp.name
 
-        # Add watermark
-        watermarked = watermarker.embed(audio_data, sample_rate)
+            # If not wav, convert to wav using ffmpeg
+            if orig_ext != '.wav':
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as out_tmp:
+                    converted_path = out_tmp.name
+                try:
+                    (
+                        ffmpeg
+                        .input(temp_path)
+                        .output(converted_path, format='wav', acodec='pcm_s16le', ac=1, ar='44100')
+                        .overwrite_output()
+                        .run(capture_stdout=True, capture_stderr=True)
+                    )
+                except Exception as conv_e:
+                    print("[WATERMARK EMBED FFMPEG ERROR] Conversion failed:")
+                    traceback.print_exc()
+                    raise HTTPException(status_code=400, detail=f"Failed to convert audio to WAV: {str(conv_e)}")
+                audio_path = converted_path
+            else:
+                audio_path = temp_path
 
-        # Convert back to bytes
-        output = io.BytesIO()
-        sf.write(output, watermarked, sample_rate, format='WAV')
-        output.seek(0)
+            # Now read as wav
+            try:
+                audio_data, sample_rate = sf.read(audio_path)
+            except Exception as sf_e:
+                print(f"[WATERMARK EMBED ERROR] soundfile.read failed: {sf_e}")
+                traceback.print_exc()
+                raise HTTPException(status_code=400, detail=f"soundfile.read failed: {sf_e}")
 
-        # Return audio file
-        return Response(
-            content=output.getvalue(),
-            media_type="audio/wav",
-            headers={
-                "Content-Disposition": "attachment; filename=watermarked.wav"
-            }
-        )
+            # Add watermark
+            watermarked = watermarker.embed(audio_data, sample_rate)
 
+            # Convert back to bytes
+            output = io.BytesIO()
+            sf.write(output, watermarked, sample_rate, format='WAV')
+            output.seek(0)
+
+            # Return audio file
+            return Response(
+                content=output.getvalue(),
+                media_type="audio/wav",
+                headers={
+                    "Content-Disposition": "attachment; filename=watermarked.wav"
+                }
+            )
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
+            if converted_path and os.path.exists(converted_path):
+                os.remove(converted_path)
     except Exception as e:
+        print("[WATERMARK EMBED ERROR]", e)
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error embedding watermark: {str(e)}")
 
 
@@ -135,7 +179,7 @@ async def detect_watermark(audio: UploadFile = File(...)):
                     (
                         ffmpeg
                         .input(temp_path)
-                        .output(converted_path, format='wav', acodec='pcm_s16le', ac=1, ar='16000')
+                        .output(converted_path, format='wav', acodec='pcm_s16le', ac=1, ar='44100')
                         .overwrite_output()
                         .run(capture_stdout=True, capture_stderr=True)
                     )

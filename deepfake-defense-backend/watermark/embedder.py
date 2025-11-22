@@ -8,15 +8,15 @@ class AudioWatermarker:
     Uses 19kHz frequency (above human hearing) to mark authentic recordings.
     """
 
-    def __init__(self, frequency: int = 19000, strength: float = 0.02):
-        # For hackathon demo: always use fixed frequency (19kHz)
+    def __init__(self, frequency: int = 21000, strength: float = 0.005):
+        # For hackathon demo: always use fixed frequency (21kHz)
         # To support per-user watermarking in the future, set frequency based on user info here
         """
         Initialize the watermarker.
 
         Args:
-            frequency: Watermark frequency in Hz (default: 19000 Hz)
-            strength: Watermark signal strength (default: 0.02 = 2% amplitude)
+            frequency: Watermark frequency in Hz (default: 21000 Hz - well above human hearing)
+            strength: Watermark signal strength (default: 0.005 = 0.5% amplitude, truly inaudible)
         """
         self.frequency = frequency
         self.strength = strength
@@ -70,11 +70,24 @@ class AudioWatermarker:
         Returns:
             Tuple of (has_watermark: bool, confidence: float)
         """
+        # Validate input
+        if audio_data is None or len(audio_data) == 0:
+            print(f"[WATERMARK ERROR] Empty audio data received")
+            return False, 0.0
+
+        print(f"[WATERMARK DEBUG] Input audio shape: {audio_data.shape}, sample_rate: {sample_rate}")
+
         # Convert stereo to mono if needed
         if len(audio_data.shape) > 1:
             audio_mono = np.mean(audio_data, axis=1)
         else:
             audio_mono = audio_data
+
+        if len(audio_mono) == 0:
+            print(f"[WATERMARK ERROR] Audio is empty after mono conversion")
+            return False, 0.0
+
+        print(f"[WATERMARK DEBUG] Mono audio length: {len(audio_mono)}")
 
         # Perform FFT to convert to frequency domain
         fft = np.fft.fft(audio_mono)
@@ -112,8 +125,9 @@ class AudioWatermarker:
         else:
             snr = 0
 
-        # Threshold for detection (watermark should be 3x stronger than noise)
-        threshold = 3.0
+        # Threshold for detection (watermark should be 1.1x stronger than noise, very forgiving for demo)
+        threshold = 1.1
+        print(f"[WATERMARK DETECT DEBUG] SNR: {snr:.2f}, threshold: {threshold}, target_magnitude: {target_magnitude:.4f}, mean_magnitude: {mean_magnitude:.4f}")
         has_watermark = snr > threshold
 
         # Confidence score (0-1)

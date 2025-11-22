@@ -9,6 +9,7 @@ export default function DeepfakeDetector() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [watermarkResult, setWatermarkResult] = useState(null);
+  const [useWatermark, setUseWatermark] = useState(false);
 
   const analyzeAudio = async (file) => {
     setAudioFile(file);
@@ -17,10 +18,17 @@ export default function DeepfakeDetector() {
     setWatermarkResult(null);
 
     try {
+      let fileToAnalyze = file;
+      // If toggle is ON, embed watermark first
+      if (useWatermark) {
+        const watermarkedBlob = await api.embedWatermark(file);
+        // Convert Blob to File for consistent API usage
+        fileToAnalyze = new File([watermarkedBlob], "watermarked.wav", { type: "audio/wav" });
+      }
       // Run both analyses in parallel
       const [deepfakeResult, watermarkCheck] = await Promise.all([
-        api.detectDeepfake(file),
-        api.detectWatermark(file),
+        api.detectDeepfake(fileToAnalyze),
+        api.detectWatermark(fileToAnalyze),
       ]);
 
       setResult(deepfakeResult);
@@ -38,6 +46,19 @@ export default function DeepfakeDetector() {
       <h1 className="text-4xl font-bold text-center mb-8">
         🛡️ DeepFake Defense
       </h1>
+
+      {/* Watermark toggle */}
+      <div className="flex items-center justify-center mb-6">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={useWatermark}
+            onChange={e => setUseWatermark(e.target.checked)}
+            className="form-checkbox h-5 w-5 text-blue-600"
+          />
+          <span className="text-lg">Embed Watermark before analysis</span>
+        </label>
+      </div>
 
       <div className="grid gap-6 mb-8">
         <VoiceRecorder onRecordingComplete={analyzeAudio} />

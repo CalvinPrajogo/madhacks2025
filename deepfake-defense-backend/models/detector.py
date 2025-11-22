@@ -62,12 +62,38 @@ class DeepfakeDetector:
         y, sr = librosa.load(audio_path, sr=None)
         print(f"[DEBUG] librosa.load: y.shape={y.shape}, sr={sr}, y[:10]={y[:10] if len(y) >= 10 else y}")
 
+        # Validate audio is not empty and has minimum length
+        min_samples = sr * 0.5  # Minimum 0.5 seconds of audio
+        if len(y) == 0:
+            print(f"[ERROR] Audio file is empty after loading")
+            # Return a neutral result for empty audio
+            return {
+                "is_deepfake": False,
+                "confidence": 0.0,
+                "risk_level": "UNKNOWN",
+                "features": {}
+            }
+        elif len(y) < min_samples:
+            print(f"[WARNING] Audio file is very short: {len(y)} samples ({len(y)/sr:.2f}s)")
+            # Return neutral result for very short audio
+            return {
+                "is_deepfake": False,
+                "confidence": 0.3,
+                "risk_level": "UNKNOWN",
+                "features": {"duration": len(y)/sr}
+            }
+
         features = {}
 
-        # 1. Spectral Centroid - where frequencies are concentrated
-        spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
-        features['spectral_centroid_mean'] = float(np.mean(spectral_centroid))
-        features['spectral_centroid_std'] = float(np.std(spectral_centroid))
+        try:
+            # 1. Spectral Centroid - where frequencies are concentrated
+            spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+            features['spectral_centroid_mean'] = float(np.mean(spectral_centroid))
+            features['spectral_centroid_std'] = float(np.std(spectral_centroid))
+        except Exception as e:
+            print(f"[ERROR] Spectral centroid extraction failed: {e}")
+            features['spectral_centroid_mean'] = 0.0
+            features['spectral_centroid_std'] = 0.0
 
         # 2. MFCCs - voice characteristics (13 coefficients)
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
@@ -123,39 +149,48 @@ class DeepfakeDetector:
         # Extract features
         features = self.extract_features(audio_path)
 
+        # If features extraction failed completely, return neutral
+        if not features or len(features) == 0:
+            return {
+                "is_deepfake": False,
+                "confidence": 0.5,
+                "risk_level": "UNKNOWN",
+                "features": {}
+            }
+
         # Initialize score (0.0 = definitely real, 1.0 = definitely fake)
         score = 0.5  # baseline
 
         # AI voices typically have more consistent spectral centroids
-        if features['spectral_centroid_std'] < 200:
+        if features.get('spectral_centroid_std', 999) < 200:
             score += 0.15
 
         # Smoother transitions (lower kurtosis magnitude)
-        if abs(features['kurtosis']) < 5:
+        if abs(features.get('kurtosis', 999)) < 5:
             score += 0.15
 
         # Less natural high-frequency content
-        if features['rolloff_mean'] < 4000:
+        if features.get('rolloff_mean', 9999) < 4000:
             score += 0.10
 
         # Very consistent MFCC patterns
-        if features['mfcc_std'] < 10:
+        if features.get('mfcc_std', 999) < 10:
             score += 0.10
 
         # Too consistent energy levels
-        if features['rms_std'] < 0.02:
+        if features.get('rms_std', 999) < 0.02:
             score += 0.08
 
         # Unnaturally low spectral bandwidth variation
-        if features['bandwidth_std'] < 100:
+        if features.get('bandwidth_std', 999) < 100:
             score += 0.07
 
         # Very consistent zero-crossing rate (unnatural)
-        if features['zcr_std'] < 0.01:
+        if features.get('zcr_std', 999) < 0.01:
             score += 0.08
 
         # Low MFCC variance (AI voices more uniform)
-        if features['mfcc_variance_mean'] < 50:
+        if features.get('mfcc_variance_mean', 999) < 50:
             score += 0.07
 
         # Clamp score to 0-1 range

@@ -147,8 +147,7 @@ class FishAudioClient:
                 f"{self.base_url}/v1/tts",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                    "model": model
+                    "Content-Type": "application/json"
                 },
                 json=request_body
             )

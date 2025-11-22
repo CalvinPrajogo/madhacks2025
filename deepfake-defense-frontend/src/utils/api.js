@@ -31,6 +31,12 @@ export const api = {
       body: formData,
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Watermark detection failed:", errorText);
+      throw new Error(`Failed to detect watermark: ${errorText}`);
+    }
+
     return response.json();
   },
 
@@ -43,6 +49,12 @@ export const api = {
       method: "POST",
       body: formData,
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Deepfake detection failed:", errorText);
+      throw new Error(`Failed to detect deepfake: ${errorText}`);
+    }
 
     return response.json();
   },
