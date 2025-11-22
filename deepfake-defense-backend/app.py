@@ -272,21 +272,40 @@ async def clone_voice(
 @app.post("/api/synthesize")
 async def synthesize_speech(
     text: str = Form(...),
-    voice_id: str = Form(...)
+    voice_id: str = Form(default=None)
 ):
     """
-    Generate speech with cloned voice.
+    Generate speech with Fish Audio TTS.
 
     Args:
         text: Text to synthesize
-        voice_id: ID of cloned voice to use
+        voice_id: Optional ID of cloned voice (currently not supported by Fish Audio API)
 
     Returns:
         Synthesized audio file
+
+    Note:
+        Custom voice models created via /api/clone-voice cannot currently be used
+        with the TTS API (returns "Reference not found"). This endpoint generates
+        speech with Fish Audio's default voice, which can still be used to demonstrate
+        deepfake detection.
     """
     try:
-        # Generate speech
-        audio_bytes = await fish_client.synthesize(text, voice_id)
+        if voice_id:
+            # Try with custom voice (may not work)
+            try:
+                audio_bytes = await fish_client.synthesize(text, voice_id)
+            except httpx.HTTPStatusError as e:
+                if "Reference not found" in str(e.response.text):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Custom voice model {voice_id} cannot be used for TTS yet. "
+                               "Using default voice instead. Remove voice_id parameter to avoid this error."
+                    )
+                raise
+        else:
+            # Use default voice (always works)
+            audio_bytes = await fish_client.synthesize(text, None)
 
         return Response(
             content=audio_bytes,
@@ -298,6 +317,11 @@ async def synthesize_speech(
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Fish Audio API error: {e.response.text}"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error synthesizing speech: {str(e)}")
 

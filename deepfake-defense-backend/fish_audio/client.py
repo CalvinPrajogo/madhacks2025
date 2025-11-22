@@ -103,36 +103,54 @@ class FishAudioClient:
             "created_at": result.get("created_at")
         }
 
-    async def synthesize(self, text: str, voice_id: str) -> bytes:
+    async def synthesize(
+        self,
+        text: str,
+        voice_id: Optional[str] = None,
+        format: str = "wav",
+        model: str = "s1"
+    ) -> bytes:
         """
-        Generate speech from text using a cloned voice model.
+        Generate speech from text using Fish Audio TTS.
 
         Args:
             text: Text to synthesize
-            voice_id: ID of the voice model to use (the _id from create_model)
+            voice_id: Optional ID of the voice model to use (None = default voice)
+            format: Output format - "wav", "mp3", "opus", or "pcm" (default: "wav")
+            model: TTS model to use - "s1", "speech-1.6", or "speech-1.5" (default: "s1")
 
         Returns:
             Audio data as bytes
 
+        API Endpoint: POST /v1/tts
+
         Note:
-            This endpoint needs to be confirmed with Fish Audio API documentation.
-            The exact TTS synthesis endpoint may vary.
+            Custom voice models created via /model endpoint currently return
+            "Reference not found" when used with TTS. Use voice_id=None for
+            default voice generation.
         """
         if not self.api_key or self.api_key == "your_key_here":
             raise ValueError("Fish Audio API key not configured")
 
         async with httpx.AsyncClient(timeout=60.0) as client:
-            # This is a placeholder - check Fish Audio docs for actual TTS endpoint
+            # Build request body
+            request_body = {
+                "text": text,
+                "format": format
+            }
+
+            # Only add reference_id if voice_id is provided
+            if voice_id:
+                request_body["reference_id"] = voice_id
+
             response = await client.post(
                 f"{self.base_url}/v1/tts",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "model": model
                 },
-                json={
-                    "text": text,
-                    "reference_id": voice_id  # May need adjustment based on actual API
-                }
+                json=request_body
             )
             response.raise_for_status()
             return response.content
