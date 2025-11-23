@@ -1,7 +1,10 @@
 import authenticIcon from "../assets/authentic_2px.png";
 import notAuthenticIcon from "../assets/not_authentic_2px.png";
-import riskIcon from "../assets/risk_2px.png";
-import securityIcon from "../assets/security_2px.png";
+import lowRiskIcon from "../assets/low_risk_2px.png";
+import riskMediumIcon from "../assets/risk_medium_2px.png";
+import riskHighIcon from "../assets/risk_high_2px.png";
+import watermarkDetectedIcon from "../assets/watermark_detected_2px.png";
+import noWatermarkIcon from "../assets/no_watermark_2px.png";
 
 export default function ResultDisplay({ result, watermarkResult }) {
   if (!result) return null;
@@ -21,10 +24,16 @@ export default function ResultDisplay({ result, watermarkResult }) {
         {/* Risk Level */}
         <div className="flex flex-col items-center gap-3">
           <img
-            src={riskIcon}
+            src={
+              riskLevel === "HIGH"
+                ? riskHighIcon
+                : riskLevel === "MEDIUM"
+                ? riskMediumIcon
+                : lowRiskIcon
+            }
             alt="Risk"
             className={`w-[150px] h-[150px] ${
-              riskLevel === "HIGH" ? "animate-pulse-scale" : ""
+              riskLevel === "HIGH" ? "animate-pulse-scale" : riskLevel === "MEDIUM" ? "animate-vibrate" : ""
             }`}
           />
           <div className="text-center">
@@ -51,8 +60,8 @@ export default function ResultDisplay({ result, watermarkResult }) {
         {/* Watermark Status */}
         <div className="flex flex-col items-center gap-3">
           <img
-            src={securityIcon}
-            alt="Security"
+            src={hasWatermark ? watermarkDetectedIcon : noWatermarkIcon}
+            alt="Watermark"
             className={`w-[150px] h-[150px] ${
               !hasWatermark ? "animate-pulse-scale" : ""
             }`}
