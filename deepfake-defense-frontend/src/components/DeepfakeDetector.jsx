@@ -14,6 +14,8 @@ export default function DeepfakeDetector() {
   const [watermarkResult, setWatermarkResult] = useState(null);
   const [audioSource, setAudioSource] = useState(null); // 'recorded' or 'uploaded'
   const [useWatermark, setUseWatermark] = useState(false);
+  const [isFading, setIsFading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const hasAnimatedAudioRef = useRef(false);
   const recorderClearRef = useState({ current: null })[0];
   const uploadClearRef = useState({ current: null })[0];
@@ -36,14 +38,19 @@ export default function DeepfakeDetector() {
   };
 
   const handleTryDifferentAudio = () => {
-    setAudioFile(null);
-    setAudioURL("");
-    setFileName("");
-    setAudioSource(null);
-    setAnalyzing(false);
-    setResult(null);
-    setWatermarkResult(null);
-    hasAnimatedAudioRef.current = false;
+    setIsFading(true);
+    setTimeout(() => {
+      setShowResults(false);
+      setAudioFile(null);
+      setAudioURL("");
+      setFileName("");
+      setAudioSource(null);
+      setAnalyzing(false);
+      setResult(null);
+      setWatermarkResult(null);
+      hasAnimatedAudioRef.current = false;
+      setIsFading(false);
+    }, 300);
   };
 
   const analyzeAudio = async () => {
@@ -72,6 +79,7 @@ export default function DeepfakeDetector() {
 
       setResult(deepfakeResult);
       setWatermarkResult(watermarkCheck);
+      setShowResults(true);
     } catch (error) {
       console.error("Analysis error:", error);
       alert("Failed to analyze audio. Please try again.");
@@ -82,11 +90,6 @@ export default function DeepfakeDetector() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 min-h-screen flex flex-col">
-      <h1 className="text-4xl text-center mb-8 pt-6 flex-shrink-0">
-        <span className="font-bold">Phish</span>
-        <span className="font-light">Net</span>
-      </h1>
-
       <div className="flex flex-col flex-grow">
         <div
           className={`flex flex-col ${
@@ -123,6 +126,12 @@ export default function DeepfakeDetector() {
               className={`relative grid grid-cols-2 gap-8 mb-6 items-center transition-all duration-500 ${
                 analyzing ? "opacity-0" : "opacity-100"
               } ${audioURL ? "" : "mt-20"}`}
+              style={{
+                animation:
+                  !isFading && !audioURL && !analyzing
+                    ? "fade-in 0.3s ease-out forwards"
+                    : "none",
+              }}
             >
               <VoiceRecorder
                 onRecordingComplete={(file, url) =>
@@ -181,9 +190,13 @@ export default function DeepfakeDetector() {
             </div>
           )}
 
-          {result && (
+          {showResults && result && (
             <>
-              <div className="mb-6 bg-white/10 p-6 rounded-lg animate-fade-slide-up">
+              <div
+                className={`mb-6 bg-white/10 p-6 rounded-lg transition-opacity duration-300 ${
+                  isFading ? "opacity-0" : "animate-fade-slide-up"
+                }`}
+              >
                 <div className="flex flex-col gap-3">
                   <p className="text-sm font-dm-sans text-white">
                     <span className="font-semibold uppercase tracking-widest">
@@ -201,7 +214,11 @@ export default function DeepfakeDetector() {
                   <CustomAudioPlayer src={audioURL} />
                 </div>
               </div>
-              <div className="animate-fade-slide-up">
+              <div
+                className={`transition-opacity duration-300 ${
+                  isFading ? "opacity-0" : "animate-fade-slide-up"
+                }`}
+              >
                 <ResultDisplay
                   result={result}
                   watermarkResult={watermarkResult}
@@ -209,10 +226,14 @@ export default function DeepfakeDetector() {
               </div>
 
               <div
-                className="flex justify-center mt-6"
+                className={`flex justify-center mt-6 transition-opacity duration-300 ${
+                  isFading ? "opacity-0" : ""
+                }`}
                 style={{
-                  animation: "fade-slide-up 0.5s ease-out 0.6s forwards",
-                  opacity: 0,
+                  animation: isFading
+                    ? "none"
+                    : "fade-slide-up 0.5s ease-out 0.6s forwards",
+                  opacity: isFading ? 0 : 0,
                 }}
               >
                 <button

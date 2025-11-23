@@ -63,7 +63,7 @@ export default function VoiceRecorder({
 
       // Draw waveform
       canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = "#0094c6";
+      canvasCtx.strokeStyle = "rgba(0, 148, 198, 1)";
       canvasCtx.beginPath();
 
       const sliceWidth = (canvas.width * 1.0) / bufferLength;
@@ -197,7 +197,9 @@ export default function VoiceRecorder({
         <button
           ref={buttonRef}
           onClick={isRecording ? stopRecording : startRecording}
-          className="group absolute inset-0 m-auto flex items-center justify-center cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300"
+          className={`group absolute inset-0 m-auto flex items-center justify-center cursor-pointer hover:opacity-100 transition-opacity duration-300 ${
+            isRecording ? "opacity-100" : "opacity-60"
+          }`}
           style={{
             width: "260px",
             height: "260px",
@@ -213,8 +215,10 @@ export default function VoiceRecorder({
         >
           {/* Inner solid circle */}
           <div
-            className={`absolute inset-0 rounded-full border-2 transition-colors ${
-              isRecording ? "border-[#0094c6]" : "border-white"
+            className={`absolute inset-0 rounded-full border-2 transition-all duration-300 ${
+              isRecording
+                ? "border-[#0094c6] opacity-100"
+                : "border-white opacity-60"
             }`}
           />
 
