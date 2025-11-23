@@ -16,14 +16,16 @@ export default function ResultDisplay({ result, watermarkResult }) {
       <h2 className="text-lg font-bold uppercase tracking-widest font-dm-sans mb-8 text-center">
         Analysis Results
       </h2>
-      
+
       <div className="flex justify-center gap-20 items-start">
         {/* Authenticity Status */}
         <div className="flex flex-col items-center gap-3">
           <img
             src={isDeepfake ? notAuthenticIcon : authenticIcon}
             alt={isDeepfake ? "Not Authentic" : "Authentic"}
-            className={`w-[150px] h-[150px] ${isDeepfake ? 'animate-pulse-scale' : ''}`}
+            className={`w-[150px] h-[150px] ${
+              isDeepfake ? "animate-pulse-scale" : ""
+            }`}
           />
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
@@ -40,14 +42,27 @@ export default function ResultDisplay({ result, watermarkResult }) {
           <img
             src={riskIcon}
             alt="Risk"
-            className={`w-[150px] h-[150px] ${riskLevel === "HIGH" ? 'animate-pulse-scale' : ''}`}
+            className={`w-[150px] h-[150px] ${
+              riskLevel === "HIGH" ? "animate-pulse-scale" : ""
+            }`}
           />
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
               Risk Level
             </p>
             <p className="text-sm font-dm-sans font-light text-white/80">
-              {riskLevel === "HIGH" ? "High" : riskLevel === "MEDIUM" ? "Medium" : riskLevel === "LOW" ? "Low" : riskLevel} - <span className="font-bold">{(confidence * 100).toFixed(1)}%</span> confidence
+              {riskLevel === "HIGH"
+                ? "High"
+                : riskLevel === "MEDIUM"
+                ? "Medium"
+                : riskLevel === "LOW"
+                ? "Low"
+                : riskLevel}{" "}
+              -{" "}
+              <span className="font-bold">
+                {(confidence * 100).toFixed(1)}%
+              </span>{" "}
+              confidence
             </p>
           </div>
         </div>
