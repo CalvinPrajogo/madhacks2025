@@ -87,57 +87,43 @@ export default function ResultDisplay({ result, watermarkResult }) {
           </div>
         </div>
 
-        {/* AI Analysis */}
+        {/* Voice Authenticity */}
         <div className="flex flex-col items-center gap-3">
           <img
-            src={riskIcon}
-            alt="Risk"
+            src={isDeepfake ? notAuthenticIcon : authenticIcon}
+            alt="Authenticity"
             className={`w-[150px] h-[150px] ${
-              (riskLevel === "HIGH" || !hasWatermark) ? "animate-pulse-scale" : ""
+              isDeepfake ? "animate-pulse-scale" : ""
             }`}
           />
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
-              AI Analysis
+              Voice Authenticity
             </p>
             <p className="text-sm font-dm-sans font-light text-white/80">
-              {isDeepfake ? "Deepfake detected" : "Appears authentic"}
-              <br />
-              <span className="font-bold">
-                {(confidence * 100).toFixed(1)}%
-              </span>{" "}
-              confidence of being AI
-            </p>
-          </div>
-        </div>
-
-        {/* Overall Verdict - Based on watermark primarily */}
-        <div className="flex flex-col items-center gap-3">
-          <img
-            src={isSuspicious ? notAuthenticIcon : (isTrustworthy ? authenticIcon : notAuthenticIcon)}
-            alt={isSuspicious || !isTrustworthy ? "Suspicious" : "Trustworthy"}
-            className={`w-[150px] h-[150px] ${
-              isSuspicious || !isTrustworthy ? "animate-pulse-scale" : ""
-            }`}
-          />
-          <div className="text-center">
-            <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
-              Verdict
-            </p>
-            <p className="text-sm font-dm-sans font-light text-white/80">
-              {isSuspicious || !isTrustworthy ? "Suspicious" : "Trustworthy"}
+              {isDeepfake ? "Not Authentic" : "Authentic"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Explanation */}
-      <div className={`mt-6 p-4 rounded-lg text-center ${
-        isTrustworthy ? "bg-green-900/30" : "bg-red-900/30"
-      }`}>
-        <p className="text-sm font-dm-sans font-light text-white/90">
-          {overallVerdict}
-        </p>
+      {/* Overall Assessment */}
+      <div className="mt-8 text-center">
+        <h2 
+          className="text-lg font-bold uppercase tracking-widest font-dm-sans"
+          style={{
+            color: hasWatermark && !isDeepfake 
+              ? "#89F4B4" 
+              : hasWatermark 
+                ? "#FFDC83" 
+                : "#FF647E"
+          }}
+        >
+          {hasWatermark && !isDeepfake ? "AUTHENTIC" : "SUSPICIOUS"} -{" "}
+          {hasWatermark
+            ? (isDeepfake ? "Watermark present but AI detects anomalies" : "Watermark verified")
+            : "No watermark detected"}
+        </h2>
       </div>
     </div>
   );

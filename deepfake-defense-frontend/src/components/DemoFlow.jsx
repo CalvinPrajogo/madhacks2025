@@ -290,10 +290,7 @@ export default function DemoFlow() {
     <div className="mx-auto p-6">
       <p className="text-center text-gray-300 mb-8 font-light">
         See how <span className="font-bold">voice cloning</span> works and how{" "}
-        <span className="font-bold">watermarking</span> protects against it.
-      </p>
-      <p className="text-center text-sm text-gray-400 mb-8">
-        💡 Tip: Use headphones for best experience
+        <span className="font-bold">watermarking</span> protects against it. Use headphones for the best experience.
       </p>
 
       {error && (
@@ -665,16 +662,26 @@ export default function DemoFlow() {
       {currentStep === 6 && (
         <div className="animate-fade-in">
           {!originalResult || !cloneResult ? (
-            <div className="text-center">
-              <div className="animate-pulse">
-                <h2 className="text-2xl font-bold mb-4">
-                  Analyzing both audio samples...
-                </h2>
-                <div className="text-6xl mb-4">⚙️</div>
-                <p className="text-gray-300">
-                  Running watermark detection and AI analysis...
-                </p>
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex justify-center mb-6">
+                <div className="relative w-16 h-16">
+                  {[...Array(12)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-2 h-2 bg-white rounded-full"
+                      style={{
+                        top: "50%",
+                        left: "50%",
+                        transform: `rotate(${i * 30}deg) translateY(-24px)`,
+                        animation: `pulse-opacity 1.2s ease-in-out ${
+                          i * 0.1
+                        }s infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
+              <p className="text-xl font-light">Analyzing both audio samples...</p>
             </div>
           ) : (
             <>

@@ -89,15 +89,15 @@ export default function DeepfakeDetector() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 min-h-screen flex flex-col">
+    <div className="max-w-4xl mx-auto p-6 min-h-screen flex flex-col relative">
       <div className="flex flex-col flex-grow">
         <div
           className={`flex flex-col ${
-            audioURL || result ? "" : "min-h-full justify-center"
+            audioURL || showResults ? "" : "min-h-full justify-center"
           } transition-all duration-500`}
         >
           {/* Watermark toggle */}
-          {!result && (
+          {!showResults && (
             <div
               className={`flex flex-col items-center justify-center mb-6 flex-shrink-0 transition-opacity duration-500 ${
                 analyzing ? "opacity-0" : "opacity-100"
@@ -121,7 +121,7 @@ export default function DeepfakeDetector() {
             </div>
           )}
 
-          {!result && (
+          {!showResults && (
             <div
               className={`relative grid grid-cols-2 gap-8 mb-6 items-center transition-all duration-500 ${
                 analyzing ? "opacity-0" : "opacity-100"
@@ -151,7 +151,7 @@ export default function DeepfakeDetector() {
             </div>
           )}
 
-          {audioURL && !result && (
+          {audioURL && !showResults && (
             <div
               className={`mb-6 bg-white/10 p-6 rounded-lg transition-opacity duration-500 ${
                 !analyzing ? "animate-fade-slide-up" : "opacity-0"
@@ -175,7 +175,7 @@ export default function DeepfakeDetector() {
             </div>
           )}
 
-          {audioURL && !result && (
+          {audioURL && !showResults && (
             <div
               className={`mb-8 flex justify-center transition-opacity duration-500 ${
                 !analyzing ? "animate-fade-slide-up" : "opacity-0"
