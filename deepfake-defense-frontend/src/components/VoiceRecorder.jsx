@@ -110,9 +110,9 @@ export default function VoiceRecorder({
       analyserRef.current.fftSize = 2048;
 
       // Use the browser's supported MIME type with proper detection
-      const options = { mimeType: 'audio/webm' };
-      if (!MediaRecorder.isTypeSupported('audio/webm')) {
-        console.warn('audio/webm not supported, using default');
+      const options = { mimeType: "audio/webm" };
+      if (!MediaRecorder.isTypeSupported("audio/webm")) {
+        console.warn("audio/webm not supported, using default");
         mediaRecorder.current = new MediaRecorder(stream);
       } else {
         mediaRecorder.current = new MediaRecorder(stream, options);
@@ -126,7 +126,7 @@ export default function VoiceRecorder({
 
       mediaRecorder.current.onstop = () => {
         // Use the actual MIME type from the MediaRecorder
-        const mimeType = mediaRecorder.current.mimeType || 'audio/webm';
+        const mimeType = mediaRecorder.current.mimeType || "audio/webm";
         const audioBlob = new Blob(audioChunks.current, { type: mimeType });
         const url = URL.createObjectURL(audioBlob);
         setInternalAudioURL(url);
@@ -134,8 +134,10 @@ export default function VoiceRecorder({
 
         // Pass blob to parent as a File object with proper extension
         if (onRecordingComplete) {
-          const extension = mimeType.includes('webm') ? 'webm' : 'wav';
-          const file = new File([audioBlob], `recording.${extension}`, { type: mimeType });
+          const extension = mimeType.includes("webm") ? "webm" : "wav";
+          const file = new File([audioBlob], `recording.${extension}`, {
+            type: mimeType,
+          });
           onRecordingComplete(file, url);
         }
 
@@ -242,19 +244,20 @@ export default function VoiceRecorder({
         </button>
       </div>
 
-      <p className="text-lg font-bold uppercase tracking-widest font-dm-sans mt-2">
-        {isRecording
-          ? "Recording..."
-          : hasRecorded
-          ? "Re-Record Audio"
-          : "Record Audio"}
-      </p>
-
-      {isRecording && (
-        <div className="text-xl font-mono text-gray-300">
-          {formatTime(recordingTime)}
-        </div>
-      )}
+      <div className="flex items-center gap-3 mt-2">
+        <p className="text-lg font-bold uppercase tracking-widest font-dm-sans">
+          {isRecording
+            ? "Recording..."
+            : hasRecorded
+            ? "Re-Record Audio"
+            : "Record Audio"}
+        </p>
+        {isRecording && (
+          <span className="text-lg font-mono text-gray-300">
+            {formatTime(recordingTime)}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

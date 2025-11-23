@@ -59,7 +59,7 @@ export default function CustomAudioPlayer({ src }) {
       {/* Play/Pause Button */}
       <button
         onClick={togglePlayPause}
-        className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white hover:opacity-80 transition-opacity"
+        className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white hover:opacity-80 transition-opacity cursor-pointer"
       >
         {isPlaying ? (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
