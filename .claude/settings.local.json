@@ -13,7 +13,9 @@
       "Bash(cat:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(npm install)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

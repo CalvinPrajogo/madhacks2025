@@ -736,7 +736,7 @@ export default function DemoFlow() {
                             ).toFixed(1)}
                             %
                           </span>{" "}
-                          confidence
+                          likely AI-generated
                         </p>
                       </div>
                     </div>
@@ -768,17 +768,21 @@ export default function DemoFlow() {
                     <div className="flex flex-col items-center gap-3">
                       <img
                         src={
-                          originalResult.deepfake.data.is_deepfake
-                            ? notAuthenticIcon
-                            : authenticIcon
+                          originalResult.watermark.has_watermark
+                            ? authenticIcon
+                            : (originalResult.deepfake.data.is_deepfake
+                                ? notAuthenticIcon
+                                : authenticIcon)
                         }
                         alt={
-                          originalResult.deepfake.data.is_deepfake
-                            ? "Not Authentic"
-                            : "Authentic"
+                          originalResult.watermark.has_watermark
+                            ? "Authentic"
+                            : (originalResult.deepfake.data.is_deepfake
+                                ? "Not Authentic"
+                                : "Authentic")
                         }
                         className={`w-[120px] h-[120px] ${
-                          originalResult.deepfake.data.is_deepfake
+                          !originalResult.watermark.has_watermark && originalResult.deepfake.data.is_deepfake
                             ? "animate-pulse-scale"
                             : ""
                         }`}
@@ -788,9 +792,11 @@ export default function DemoFlow() {
                           Voice Authenticity
                         </p>
                         <p className="text-sm font-dm-sans font-light text-white/80">
-                          {originalResult.deepfake.data.is_deepfake
-                            ? "Not authentic"
-                            : "Authentic"}
+                          {originalResult.watermark.has_watermark
+                            ? "Authentic"
+                            : (originalResult.deepfake.data.is_deepfake
+                                ? "Not authentic"
+                                : "Authentic")}
                         </p>
                       </div>
                     </div>
@@ -840,7 +846,7 @@ export default function DemoFlow() {
                             ).toFixed(1)}
                             %
                           </span>{" "}
-                          confidence
+                          likely AI-generated
                         </p>
                       </div>
                     </div>
@@ -872,17 +878,21 @@ export default function DemoFlow() {
                     <div className="flex flex-col items-center gap-3">
                       <img
                         src={
-                          cloneResult.deepfake.data.is_deepfake
-                            ? notAuthenticIcon
-                            : authenticIcon
+                          cloneResult.watermark.has_watermark
+                            ? authenticIcon
+                            : (cloneResult.deepfake.data.is_deepfake
+                                ? notAuthenticIcon
+                                : authenticIcon)
                         }
                         alt={
-                          cloneResult.deepfake.data.is_deepfake
-                            ? "Not Authentic"
-                            : "Authentic"
+                          cloneResult.watermark.has_watermark
+                            ? "Authentic"
+                            : (cloneResult.deepfake.data.is_deepfake
+                                ? "Not Authentic"
+                                : "Authentic")
                         }
                         className={`w-[120px] h-[120px] ${
-                          cloneResult.deepfake.data.is_deepfake
+                          !cloneResult.watermark.has_watermark && cloneResult.deepfake.data.is_deepfake
                             ? "animate-pulse-scale"
                             : ""
                         }`}
@@ -892,9 +902,11 @@ export default function DemoFlow() {
                           Voice Authenticity
                         </p>
                         <p className="text-sm font-dm-sans font-light text-white/80">
-                          {cloneResult.deepfake.data.is_deepfake
-                            ? "Not authentic"
-                            : "Authentic"}
+                          {cloneResult.watermark.has_watermark
+                            ? "Authentic"
+                            : (cloneResult.deepfake.data.is_deepfake
+                                ? "Not authentic"
+                                : "Authentic")}
                         </p>
                       </div>
                     </div>

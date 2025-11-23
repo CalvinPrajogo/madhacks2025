@@ -197,8 +197,9 @@ class DeepfakeDetector:
         score = max(0.0, min(1.0, score))
         print(f"[DEBUG] Deepfake score: {score}")
 
-        # Determine if deepfake
-        is_deepfake = score > 0.65
+        # Determine if deepfake (lowered threshold for demo - modern TTS is very good)
+        # Using >= 0.5 so that 50% or higher confidence is flagged as AI-generated
+        is_deepfake = score >= 0.5
 
         # Determine risk level
         if score < 0.4:

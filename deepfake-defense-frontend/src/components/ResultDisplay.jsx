@@ -11,6 +11,13 @@ export default function ResultDisplay({ result, watermarkResult }) {
   const riskLevel = result.data?.risk_level || "UNKNOWN";
   const hasWatermark = watermarkResult?.has_watermark || false;
 
+  // Overall verdict: If no watermark AND confidence >= 50%, it's suspicious
+  const isSuspicious = !hasWatermark && confidence >= 0.5;
+  const isTrustworthy = hasWatermark && !isDeepfake;
+  const overallVerdict = hasWatermark
+    ? (isDeepfake ? "SUSPICIOUS - Watermark present but AI detects anomalies" : "AUTHENTIC - Watermark verified")
+    : "SUSPICIOUS - No watermark detected";
+
   return (
     <div className="bg-white/10 p-6 rounded-lg">
       <h2 className="text-lg font-bold uppercase tracking-widest font-dm-sans mb-8 text-center">
@@ -18,37 +25,7 @@ export default function ResultDisplay({ result, watermarkResult }) {
       </h2>
 
       <div className="flex justify-center gap-20 items-start">
-        {/* Risk Level */}
-        <div className="flex flex-col items-center gap-3">
-          <img
-            src={riskIcon}
-            alt="Risk"
-            className={`w-[150px] h-[150px] ${
-              riskLevel === "HIGH" ? "animate-pulse-scale" : ""
-            }`}
-          />
-          <div className="text-center">
-            <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
-              Risk Level
-            </p>
-            <p className="text-sm font-dm-sans font-light text-white/80">
-              {riskLevel === "HIGH"
-                ? "High"
-                : riskLevel === "MEDIUM"
-                ? "Medium"
-                : riskLevel === "LOW"
-                ? "Low"
-                : riskLevel}{" "}
-              -{" "}
-              <span className="font-bold">
-                {(confidence * 100).toFixed(1)}%
-              </span>{" "}
-              confidence
-            </p>
-          </div>
-        </div>
-
-        {/* Watermark Status */}
+        {/* Watermark Status - NOW FIRST (most important) */}
         <div className="flex flex-col items-center gap-3">
           <img
             src={securityIcon}
@@ -67,24 +44,57 @@ export default function ResultDisplay({ result, watermarkResult }) {
           </div>
         </div>
 
-        {/* Authenticity Status */}
+        {/* AI Analysis */}
         <div className="flex flex-col items-center gap-3">
           <img
-            src={isDeepfake ? notAuthenticIcon : authenticIcon}
-            alt={isDeepfake ? "Not Authentic" : "Authentic"}
+            src={riskIcon}
+            alt="Risk"
             className={`w-[150px] h-[150px] ${
-              isDeepfake ? "animate-pulse-scale" : ""
+              (riskLevel === "HIGH" || !hasWatermark) ? "animate-pulse-scale" : ""
             }`}
           />
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
-              Voice Authenticity
+              AI Analysis
             </p>
             <p className="text-sm font-dm-sans font-light text-white/80">
-              {isDeepfake ? "Not authentic" : "Authentic"}
+              {isDeepfake ? "Deepfake detected" : "Appears authentic"}
+              <br />
+              <span className="font-bold">
+                {(confidence * 100).toFixed(1)}%
+              </span>{" "}
+              confidence of being AI
             </p>
           </div>
         </div>
+
+        {/* Overall Verdict - Based on watermark primarily */}
+        <div className="flex flex-col items-center gap-3">
+          <img
+            src={isSuspicious ? notAuthenticIcon : (isTrustworthy ? authenticIcon : notAuthenticIcon)}
+            alt={isSuspicious || !isTrustworthy ? "Suspicious" : "Trustworthy"}
+            className={`w-[150px] h-[150px] ${
+              isSuspicious || !isTrustworthy ? "animate-pulse-scale" : ""
+            }`}
+          />
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+              Verdict
+            </p>
+            <p className="text-sm font-dm-sans font-light text-white/80">
+              {isSuspicious || !isTrustworthy ? "Suspicious" : "Trustworthy"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Explanation */}
+      <div className={`mt-6 p-4 rounded-lg text-center ${
+        isTrustworthy ? "bg-green-900/30" : "bg-red-900/30"
+      }`}>
+        <p className="text-sm font-dm-sans font-light text-white/90">
+          {overallVerdict}
+        </p>
       </div>
     </div>
   );
