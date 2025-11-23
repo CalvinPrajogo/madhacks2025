@@ -69,7 +69,7 @@
 }
 
 .animate-pulse-scale {
-  animation: pulse-scale 2s ease-in-out infinite;
+  animation: pulse-scale 1.2s ease-in-out infinite;
 }
 
 @keyframes fade-in {
@@ -79,6 +79,10 @@
   100% {
     opacity: 1;
   }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
 }
 
 @keyframes fade-out {
@@ -97,6 +101,15 @@
   }
   50% {
     opacity: 0.8;
+  }
+}
+
+@keyframes fill-line {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
   }
 }
 
