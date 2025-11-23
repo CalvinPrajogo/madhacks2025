@@ -216,7 +216,9 @@ export default function VoiceRecorder({
           {/* Inner solid circle */}
           <div
             className={`absolute inset-0 rounded-full border-2 transition-all duration-300 ${
-              isRecording ? "border-[#0094c6] opacity-100" : "border-white opacity-60"
+              isRecording
+                ? "border-[#0094c6] opacity-100"
+                : "border-white opacity-60"
             }`}
           />
 

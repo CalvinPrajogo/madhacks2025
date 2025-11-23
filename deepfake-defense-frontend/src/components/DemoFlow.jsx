@@ -294,7 +294,8 @@ export default function DemoFlow() {
   return (
     <div className="mx-auto p-6">
       <p className="text-center text-gray-300 mb-8 font-light">
-        See how <span className="font-bold">voice cloning</span> works and how <span className="font-bold">watermarking</span> protects against it.
+        See how <span className="font-bold">voice cloning</span> works and how{" "}
+        <span className="font-bold">watermarking</span> protects against it.
       </p>
 
       {error && (
@@ -350,10 +351,7 @@ export default function DemoFlow() {
         {currentStep && (
           <div className="flex justify-between items-center w-[860px] max-w-full mx-auto mt-2">
             {[1, 2, 3, 4, 5, 6].map((s) => (
-              <div
-                key={s}
-                className="w-24 text-center flex-shrink-0"
-              >
+              <div key={s} className="w-24 text-center flex-shrink-0">
                 {s === currentStep && (
                   <p className="text-sm font-dm-sans font-semibold uppercase tracking-widest whitespace-nowrap">
                     STEP {currentStep > 6 ? 6 : currentStep}
@@ -703,7 +701,8 @@ export default function DemoFlow() {
                         src={
                           originalResult.deepfake.data.risk_level === "HIGH"
                             ? riskHighIcon
-                            : originalResult.deepfake.data.risk_level === "MEDIUM"
+                            : originalResult.deepfake.data.risk_level ===
+                              "MEDIUM"
                             ? riskMediumIcon
                             : lowRiskIcon
                         }
@@ -711,7 +710,8 @@ export default function DemoFlow() {
                         className={`w-[120px] h-[120px] ${
                           originalResult.deepfake.data.risk_level === "HIGH"
                             ? "animate-pulse-scale"
-                            : originalResult.deepfake.data.risk_level === "MEDIUM"
+                            : originalResult.deepfake.data.risk_level ===
+                              "MEDIUM"
                             ? "animate-vibrate"
                             : ""
                         }`}
@@ -744,7 +744,11 @@ export default function DemoFlow() {
                     {/* Watermark Status */}
                     <div className="flex flex-col items-center gap-3">
                       <img
-                        src={originalResult.watermark.has_watermark ? watermarkDetectedIcon : noWatermarkIcon}
+                        src={
+                          originalResult.watermark.has_watermark
+                            ? watermarkDetectedIcon
+                            : noWatermarkIcon
+                        }
                         alt="Watermark"
                         className={`w-[120px] h-[120px] ${
                           !originalResult.watermark.has_watermark
@@ -856,7 +860,11 @@ export default function DemoFlow() {
                     {/* Watermark Status */}
                     <div className="flex flex-col items-center gap-3">
                       <img
-                        src={cloneResult.watermark.has_watermark ? watermarkDetectedIcon : noWatermarkIcon}
+                        src={
+                          cloneResult.watermark.has_watermark
+                            ? watermarkDetectedIcon
+                            : noWatermarkIcon
+                        }
                         alt="Watermark"
                         className={`w-[120px] h-[120px] ${
                           !cloneResult.watermark.has_watermark

@@ -33,7 +33,11 @@ export default function ResultDisplay({ result, watermarkResult }) {
             }
             alt="Risk"
             className={`w-[150px] h-[150px] ${
-              riskLevel === "HIGH" ? "animate-pulse-scale" : riskLevel === "MEDIUM" ? "animate-vibrate" : ""
+              riskLevel === "HIGH"
+                ? "animate-pulse-scale"
+                : riskLevel === "MEDIUM"
+                ? "animate-vibrate"
+                : ""
             }`}
           />
           <div className="text-center">

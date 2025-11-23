@@ -14,7 +14,7 @@ function App() {
     if (mode !== displayMode && !isTransitioning) {
       setIsTransitioning(true);
       setSlideDirection(mode === "detector" ? "left" : "right");
-      
+
       // Wait for slide-out animation
       setTimeout(() => {
         setDisplayMode(mode);

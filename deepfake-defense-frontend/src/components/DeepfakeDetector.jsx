@@ -127,7 +127,10 @@ export default function DeepfakeDetector() {
                 analyzing ? "opacity-0" : "opacity-100"
               } ${audioURL ? "" : "mt-20"}`}
               style={{
-                animation: !isFading && !audioURL && !analyzing ? 'fade-in 0.3s ease-out forwards' : 'none'
+                animation:
+                  !isFading && !audioURL && !analyzing
+                    ? "fade-in 0.3s ease-out forwards"
+                    : "none",
               }}
             >
               <VoiceRecorder
@@ -189,7 +192,11 @@ export default function DeepfakeDetector() {
 
           {showResults && result && (
             <>
-              <div className={`mb-6 bg-white/10 p-6 rounded-lg transition-opacity duration-300 ${isFading ? 'opacity-0' : 'animate-fade-slide-up'}`}>
+              <div
+                className={`mb-6 bg-white/10 p-6 rounded-lg transition-opacity duration-300 ${
+                  isFading ? "opacity-0" : "animate-fade-slide-up"
+                }`}
+              >
                 <div className="flex flex-col gap-3">
                   <p className="text-sm font-dm-sans text-white">
                     <span className="font-semibold uppercase tracking-widest">
@@ -207,7 +214,11 @@ export default function DeepfakeDetector() {
                   <CustomAudioPlayer src={audioURL} />
                 </div>
               </div>
-              <div className={`transition-opacity duration-300 ${isFading ? 'opacity-0' : 'animate-fade-slide-up'}`}>
+              <div
+                className={`transition-opacity duration-300 ${
+                  isFading ? "opacity-0" : "animate-fade-slide-up"
+                }`}
+              >
                 <ResultDisplay
                   result={result}
                   watermarkResult={watermarkResult}
@@ -215,9 +226,13 @@ export default function DeepfakeDetector() {
               </div>
 
               <div
-                className={`flex justify-center mt-6 transition-opacity duration-300 ${isFading ? 'opacity-0' : ''}`}
+                className={`flex justify-center mt-6 transition-opacity duration-300 ${
+                  isFading ? "opacity-0" : ""
+                }`}
                 style={{
-                  animation: isFading ? 'none' : "fade-slide-up 0.5s ease-out 0.6s forwards",
+                  animation: isFading
+                    ? "none"
+                    : "fade-slide-up 0.5s ease-out 0.6s forwards",
                   opacity: isFading ? 0 : 0,
                 }}
               >
