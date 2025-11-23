@@ -18,7 +18,9 @@ export default function ResultDisplay({ result, watermarkResult }) {
   const isSuspicious = !hasWatermark && confidence >= 0.5;
   const isTrustworthy = hasWatermark && !isDeepfake;
   const overallVerdict = hasWatermark
-    ? (isDeepfake ? "SUSPICIOUS - Watermark present but AI detects anomalies" : "AUTHENTIC - Watermark verified")
+    ? isDeepfake
+      ? "SUSPICIOUS - Watermark present but AI detects anomalies"
+      : "AUTHENTIC - Watermark verified"
     : "SUSPICIOUS - No watermark detected";
 
   return (
@@ -109,19 +111,22 @@ export default function ResultDisplay({ result, watermarkResult }) {
 
       {/* Overall Assessment */}
       <div className="mt-8 text-center">
-        <h2 
+        <h2
           className="text-lg font-bold uppercase tracking-widest font-dm-sans"
           style={{
-            color: hasWatermark && !isDeepfake 
-              ? "#89F4B4" 
-              : hasWatermark 
-                ? "#FFDC83" 
-                : "#FF647E"
+            color:
+              hasWatermark && !isDeepfake
+                ? "#89F4B4"
+                : hasWatermark
+                ? "#FFDC83"
+                : "#FF647E",
           }}
         >
           {hasWatermark && !isDeepfake ? "AUTHENTIC" : "SUSPICIOUS"} -{" "}
           {hasWatermark
-            ? (isDeepfake ? "Watermark present but AI detects anomalies" : "Watermark verified")
+            ? isDeepfake
+              ? "Watermark present but AI detects anomalies"
+              : "Watermark verified"
             : "No watermark detected"}
         </h2>
       </div>

@@ -166,8 +166,13 @@ export default function DemoFlow() {
       const watermarkedVoiceId = cloneResponse.data?.voice_id || null;
 
       // Synthesize speech with the cloned watermarked voice (longer text for better analysis)
-      const audioBlob = await api.synthesizeSpeech("This is my voice cloned from the protected excerpt. Fortunately I can't copy the audio fingerprint.", watermarkedVoiceId);
-      const audioFile = new File([audioBlob], "cloned_watermarked.wav", { type: "audio/wav" });
+      const audioBlob = await api.synthesizeSpeech(
+        "This is my voice cloned from the protected excerpt. Fortunately I can't copy the audio fingerprint.",
+        watermarkedVoiceId
+      );
+      const audioFile = new File([audioBlob], "cloned_watermarked.wav", {
+        type: "audio/wav",
+      });
 
       setClonedWatermarkedAudio(audioFile);
       setClonedWatermarkedAudioURL(URL.createObjectURL(audioBlob));
@@ -290,7 +295,8 @@ export default function DemoFlow() {
     <div className="mx-auto p-6">
       <p className="text-center text-gray-300 mb-8 font-light">
         See how <span className="font-bold">voice cloning</span> works and how{" "}
-        <span className="font-bold">watermarking</span> protects against it. Use headphones for the best experience.
+        <span className="font-bold">watermarking</span> protects against it. Use
+        headphones for the best experience.
       </p>
 
       {error && (
@@ -681,7 +687,9 @@ export default function DemoFlow() {
                   ))}
                 </div>
               </div>
-              <p className="text-xl font-light">Analyzing both audio samples...</p>
+              <p className="text-xl font-light">
+                Analyzing both audio samples...
+              </p>
             </div>
           ) : (
             <>
@@ -779,19 +787,20 @@ export default function DemoFlow() {
                         src={
                           originalResult.watermark.has_watermark
                             ? authenticIcon
-                            : (originalResult.deepfake.data.is_deepfake
-                                ? notAuthenticIcon
-                                : authenticIcon)
+                            : originalResult.deepfake.data.is_deepfake
+                            ? notAuthenticIcon
+                            : authenticIcon
                         }
                         alt={
                           originalResult.watermark.has_watermark
                             ? "Authentic"
-                            : (originalResult.deepfake.data.is_deepfake
-                                ? "Not Authentic"
-                                : "Authentic")
+                            : originalResult.deepfake.data.is_deepfake
+                            ? "Not Authentic"
+                            : "Authentic"
                         }
                         className={`w-[120px] h-[120px] ${
-                          !originalResult.watermark.has_watermark && originalResult.deepfake.data.is_deepfake
+                          !originalResult.watermark.has_watermark &&
+                          originalResult.deepfake.data.is_deepfake
                             ? "animate-pulse-scale"
                             : ""
                         }`}
@@ -803,9 +812,9 @@ export default function DemoFlow() {
                         <p className="text-sm font-dm-sans font-light text-white/80">
                           {originalResult.watermark.has_watermark
                             ? "Authentic"
-                            : (originalResult.deepfake.data.is_deepfake
-                                ? "Not authentic"
-                                : "Authentic")}
+                            : originalResult.deepfake.data.is_deepfake
+                            ? "Not authentic"
+                            : "Authentic"}
                         </p>
                       </div>
                     </div>
@@ -901,19 +910,20 @@ export default function DemoFlow() {
                         src={
                           cloneResult.watermark.has_watermark
                             ? authenticIcon
-                            : (cloneResult.deepfake.data.is_deepfake
-                                ? notAuthenticIcon
-                                : authenticIcon)
+                            : cloneResult.deepfake.data.is_deepfake
+                            ? notAuthenticIcon
+                            : authenticIcon
                         }
                         alt={
                           cloneResult.watermark.has_watermark
                             ? "Authentic"
-                            : (cloneResult.deepfake.data.is_deepfake
-                                ? "Not Authentic"
-                                : "Authentic")
+                            : cloneResult.deepfake.data.is_deepfake
+                            ? "Not Authentic"
+                            : "Authentic"
                         }
                         className={`w-[120px] h-[120px] ${
-                          !cloneResult.watermark.has_watermark && cloneResult.deepfake.data.is_deepfake
+                          !cloneResult.watermark.has_watermark &&
+                          cloneResult.deepfake.data.is_deepfake
                             ? "animate-pulse-scale"
                             : ""
                         }`}
@@ -925,9 +935,9 @@ export default function DemoFlow() {
                         <p className="text-sm font-dm-sans font-light text-white/80">
                           {cloneResult.watermark.has_watermark
                             ? "Authentic"
-                            : (cloneResult.deepfake.data.is_deepfake
-                                ? "Not authentic"
-                                : "Authentic")}
+                            : cloneResult.deepfake.data.is_deepfake
+                            ? "Not authentic"
+                            : "Authentic"}
                         </p>
                       </div>
                     </div>
