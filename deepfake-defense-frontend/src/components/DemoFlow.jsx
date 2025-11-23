@@ -150,7 +150,7 @@ export default function DemoFlow() {
       const watermarkedVoiceId = cloneResponse.data?.voice_id || null;
 
       // Synthesize speech with the cloned watermarked voice (longer text for better analysis)
-      const audioBlob = await api.synthesizeSpeech("This is my protected voice speaking. The watermark technology ensures that this audio can be verified as authentic and prevents unauthorized voice cloning attacks.", watermarkedVoiceId);
+      const audioBlob = await api.synthesizeSpeech("This is my voice cloned from the protected excerpt. Fortunately I can't copy the audio fingerprint.", watermarkedVoiceId);
       const audioFile = new File([audioBlob], "cloned_watermarked.wav", { type: "audio/wav" });
 
       setClonedWatermarkedAudio(audioFile);
@@ -263,11 +263,16 @@ export default function DemoFlow() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-4xl font-bold text-center mb-2">
-        DeepFake Defense - Live Demo
+      <h1 className="text-4xl text-center mb-2">
+        <span className="font-bold">Phish</span>
+        <span className="font-light">Net</span>
+        <span className="font-bold"> - Live Demo</span>
       </h1>
-      <p className="text-center text-gray-300 mb-8">
+      <p className="text-center text-gray-300 mb-2">
         See how voice cloning works and how watermarking protects against it
+      </p>
+      <p className="text-center text-sm text-gray-400 mb-8">
+        💡 Tip: Use headphones for best experience
       </p>
 
       {error && (

@@ -8,7 +8,7 @@ class AudioWatermarker:
     Uses 19kHz frequency (above human hearing) to mark authentic recordings.
     """
 
-    def __init__(self, frequency: int = 21000, strength: float = 0.005):
+    def __init__(self, frequency: int = 21000, strength: float = 0.01):
         # For hackathon demo: always use fixed frequency (21kHz)
         # To support per-user watermarking in the future, set frequency based on user info here
         """
@@ -16,7 +16,7 @@ class AudioWatermarker:
 
         Args:
             frequency: Watermark frequency in Hz (default: 21000 Hz - well above human hearing)
-            strength: Watermark signal strength (default: 0.005 = 0.5% amplitude, truly inaudible)
+            strength: Watermark signal strength (default: 0.01 = 1% amplitude, inaudible but detectable)
         """
         self.frequency = frequency
         self.strength = strength
@@ -125,12 +125,14 @@ class AudioWatermarker:
         else:
             snr = 0
 
-        # Threshold for detection (watermark should be 1.1x stronger than noise, very forgiving for demo)
-        threshold = 1.1
+        # Threshold for detection - watermark should be significantly stronger than noise
+        # Increased from 1.1 to 2.5 to reduce false positives
+        threshold = 2.5
         print(f"[WATERMARK DETECT DEBUG] SNR: {snr:.2f}, threshold: {threshold}, target_magnitude: {target_magnitude:.4f}, mean_magnitude: {mean_magnitude:.4f}")
         has_watermark = snr > threshold
 
         # Confidence score (0-1)
-        confidence = min(snr / (threshold * 2), 1.0)
+        # Scale confidence so that threshold = 50% confidence, and 2x threshold = 100%
+        confidence = min(max((snr - threshold) / threshold, 0), 1.0)
 
         return has_watermark, float(confidence)
