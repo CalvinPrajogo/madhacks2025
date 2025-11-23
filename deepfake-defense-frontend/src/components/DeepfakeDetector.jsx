@@ -96,7 +96,7 @@ export default function DeepfakeDetector() {
           {/* Watermark toggle */}
           {!result && (
             <div
-              className={`flex flex-col items-center justify-center mb-6 flex-shrink-0 gap-2 transition-opacity duration-500 ${
+              className={`flex flex-col items-center justify-center mb-6 flex-shrink-0 transition-opacity duration-500 ${
                 analyzing ? "opacity-0" : "opacity-100"
               }`}
             >
@@ -115,18 +115,14 @@ export default function DeepfakeDetector() {
                   Add Watermark
                 </span>
               </label>
-              <p className="text-sm font-dm-sans font-light text-white/80 text-center max-w-md">
-                When active, a silent frequency will be added to your audio to
-                create a unique voice ID.
-              </p>
             </div>
           )}
 
           {!result && (
             <div
-              className={`relative grid grid-cols-2 gap-8 mb-6 items-center transition-opacity duration-500 ${
+              className={`relative grid grid-cols-2 gap-8 mb-6 items-center transition-all duration-500 ${
                 analyzing ? "opacity-0" : "opacity-100"
-              }`}
+              } ${audioURL ? "" : "mt-20"}`}
             >
               <VoiceRecorder
                 onRecordingComplete={(file, url) =>

@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import VoiceRecorder from "./VoiceRecorder";
 import CustomAudioPlayer from "./CustomAudioPlayer";
 import { api } from "../utils/api";
+import authenticIcon from "../assets/authentic_2px.png";
+import notAuthenticIcon from "../assets/not_authentic_2px.png";
+import riskIcon from "../assets/risk_2px.png";
+import securityIcon from "../assets/security_2px.png";
 
 export default function DemoFlow() {
   // State for the 7-step demo flow
@@ -13,7 +17,9 @@ export default function DemoFlow() {
   const [voiceId, setVoiceId] = useState(null);
   const [clonedAudio, setClonedAudio] = useState(null);
   const [clonedAudioURL, setClonedAudioURL] = useState(null);
-  const [synthesizeText, setSynthesizeText] = useState("I hereby declare this project wins first place and award you with $10,000!");
+  const [synthesizeText, setSynthesizeText] = useState(
+    "I hereby declare this project wins first place and award you with $10,000!"
+  );
 
   // Flow 2: Protection Demo (Steps 4-5)
   const [recordedAudio, setRecordedAudio] = useState(null);
@@ -21,7 +27,8 @@ export default function DemoFlow() {
   const [watermarkedAudio, setWatermarkedAudio] = useState(null);
   const [watermarkedAudioURL, setWatermarkedAudioURL] = useState(null);
   const [clonedWatermarkedAudio, setClonedWatermarkedAudio] = useState(null);
-  const [clonedWatermarkedAudioURL, setClonedWatermarkedAudioURL] = useState(null);
+  const [clonedWatermarkedAudioURL, setClonedWatermarkedAudioURL] =
+    useState(null);
 
   // Flow 3: Comparison (Step 6)
   const [originalResult, setOriginalResult] = useState(null);
@@ -65,7 +72,9 @@ export default function DemoFlow() {
       }
     } catch (err) {
       console.error("Error cloning voice:", err);
-      setError(`Voice cloning failed. Possible reasons:\n- Fish Audio API is down\n- Network connectivity issue\n- Audio file format not supported\n\nUsing default voice for demo instead.`);
+      setError(
+        `Voice cloning failed. Possible reasons:\n- Fish Audio API is down\n- Network connectivity issue\n- Audio file format not supported\n\nUsing default voice for demo instead.`
+      );
       // Allow continuing with default voice
       setVoiceId(null);
       setCurrentStep(3);
@@ -89,7 +98,9 @@ export default function DemoFlow() {
       console.log("Using voice ID:", voiceId);
 
       const audioBlob = await api.synthesizeSpeech(synthesizeText, voiceId);
-      const audioFile = new File([audioBlob], "cloned.wav", { type: "audio/wav" });
+      const audioFile = new File([audioBlob], "cloned.wav", {
+        type: "audio/wav",
+      });
 
       setClonedAudio(audioFile);
       setClonedAudioURL(URL.createObjectURL(audioBlob));
@@ -123,7 +134,9 @@ export default function DemoFlow() {
 
     try {
       const watermarkedBlob = await api.embedWatermark(recordedAudio);
-      const watermarkedFile = new File([watermarkedBlob], "watermarked.wav", { type: "audio/wav" });
+      const watermarkedFile = new File([watermarkedBlob], "watermarked.wav", {
+        type: "audio/wav",
+      });
 
       setWatermarkedAudio(watermarkedFile);
       setWatermarkedAudioURL(URL.createObjectURL(watermarkedBlob));
@@ -159,12 +172,19 @@ export default function DemoFlow() {
       // Don't advance to step 6 yet - let the button in step 5 do it
     } catch (err) {
       console.error("Error cloning watermarked voice:", err);
-      setError("Failed to clone watermarked voice. Using default voice for demo.");
+      setError(
+        "Failed to clone watermarked voice. Using default voice for demo."
+      );
 
       // Still create a demo audio for comparison
       try {
-        const audioBlob = await api.synthesizeSpeech("This is my protected voice speaking. The watermark technology ensures that this audio can be verified as authentic and prevents unauthorized voice cloning attacks.", null);
-        const audioFile = new File([audioBlob], "cloned_watermarked.wav", { type: "audio/wav" });
+        const audioBlob = await api.synthesizeSpeech(
+          "This is my protected voice speaking. The watermark technology ensures that this audio can be verified as authentic and prevents unauthorized voice cloning attacks.",
+          null
+        );
+        const audioFile = new File([audioBlob], "cloned_watermarked.wav", {
+          type: "audio/wav",
+        });
 
         setClonedWatermarkedAudio(audioFile);
         setClonedWatermarkedAudioURL(URL.createObjectURL(audioBlob));
@@ -197,12 +217,12 @@ export default function DemoFlow() {
       const [watermarkedDetection, clonedDetection] = await Promise.all([
         Promise.all([
           api.detectWatermark(watermarkedAudio),
-          api.detectDeepfake(watermarkedAudio)
+          api.detectDeepfake(watermarkedAudio),
         ]),
         Promise.all([
           api.detectWatermark(clonedWatermarkedAudio),
-          api.detectDeepfake(clonedWatermarkedAudio)
-        ])
+          api.detectDeepfake(clonedWatermarkedAudio),
+        ]),
       ]);
 
       console.log("Watermarked results:", watermarkedDetection);
@@ -210,18 +230,20 @@ export default function DemoFlow() {
 
       setOriginalResult({
         watermark: watermarkedDetection[0],
-        deepfake: watermarkedDetection[1]
+        deepfake: watermarkedDetection[1],
       });
 
       setCloneResult({
         watermark: clonedDetection[0],
-        deepfake: clonedDetection[1]
+        deepfake: clonedDetection[1],
       });
 
-      setCurrentStep(7);
+      // Stay on step 6, results will show automatically
     } catch (err) {
       console.error("Error comparing audio:", err);
-      setError(`Failed to analyze audio: ${err.message}\n\nPlease check the browser console for details.`);
+      setError(
+        `Failed to analyze audio: ${err.message}\n\nPlease check the browser console for details.`
+      );
       setCurrentStep(5); // Go back to step 5
       setComparisonStarted(false);
     } finally {
@@ -256,7 +278,7 @@ export default function DemoFlow() {
       4: "Add Protection",
       5: "Clone Protected",
       6: "Compare",
-      7: "Results"
+      7: "Results",
     };
     return labels[step] || "";
   };
@@ -288,85 +310,153 @@ export default function DemoFlow() {
       )}
 
       {/* Step Indicator */}
-      <div className="flex justify-center mb-8 gap-2">
-        {[1, 2, 3, 4, 5, 6, 7].map((s) => (
-          <div key={s} className="flex flex-col items-center">
-            <div
-              className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-colors ${
-                s === currentStep
-                  ? "bg-blue-600 text-white ring-4 ring-blue-400/50"
-                  : s < currentStep
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-700 text-gray-400"
-              }`}
-            >
-              {s < currentStep ? "✓" : s}
-            </div>
-            <span className="text-xs mt-1 text-gray-400">{getStepLabel(s)}</span>
+      <div className="absolute left-0 right-0">
+        <div className="w-full max-w-3xl mx-auto">
+          {/* Circles and Lines */}
+          <div className="flex items-center w-full">
+            {[1, 2, 3, 4, 5, 6].map((s, index) => (
+              <div
+                key={s}
+                className={`flex items-center ${index < 5 ? "flex-1" : ""}`}
+              >
+                {/* Circle */}
+                <div
+                  className={`w-3 h-3 rounded-full transition-opacity duration-500 flex-shrink-0 ${
+                    s <= currentStep
+                      ? "bg-white opacity-100"
+                      : "bg-white opacity-40"
+                  }`}
+                />
+                {/* Line between circles (not after last circle) */}
+                {index < 5 && (
+                  <div className="h-[2px] flex-1 relative">
+                    {/* Base line (40% opacity) */}
+                    <div className="absolute inset-0 bg-white opacity-40" />
+                    {/* Filled line (100% opacity, animates from left) */}
+                    <div
+                      className="absolute inset-0 bg-white opacity-100 origin-left transition-transform duration-700 ease-out"
+                      style={{
+                        transform: currentStep > s ? "scaleX(1)" : "scaleX(0)",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
+
+          {/* Step Label positioned under current circle */}
+          {currentStep && (
+            <div className="relative flex items-start w-full mt-2">
+              {[1, 2, 3, 4, 5, 6].map((s, index) => (
+                <div
+                  key={s}
+                  className={`flex items-center ${index < 5 ? "flex-1" : ""}`}
+                >
+                  {s === currentStep && (
+                    <p
+                      className="text-sm font-dm-sans font-semibold uppercase tracking-widest whitespace-nowrap"
+                      style={{ marginLeft: "-20px" }}
+                    >
+                      STEP {currentStep > 6 ? 6 : currentStep}
+                    </p>
+                  )}
+                  {index < 5 && <div className="flex-1" />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+      <div className="h-20" />
 
       {/* STEP 1: Record Original Voice */}
       {currentStep === 1 && (
-        <div className="text-center">
-          <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Step 1: Record Your Voice</h2>
-            <p className="text-gray-300">
-              Record a short voice sample (5-10 seconds). We'll show how easy it is to clone your voice.
-            </p>
-          </div>
-
-          <VoiceRecorder onRecordingComplete={handleStep1Recording} />
-
-          {originalAudioURL && (
-            <div className="mt-6 animate-fade-slide-up">
-              <h3 className="text-lg font-semibold mb-2">Your Recording:</h3>
-              <div className="bg-white/10 p-4 rounded-lg mb-4 max-w-2xl mx-auto">
-                <CustomAudioPlayer src={originalAudioURL} />
-              </div>
-
-              <button
-                onClick={advanceFromStep1}
-                className="px-12 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-xl transition-colors"
-              >
-                Next: Clone This Voice →
-              </button>
+        <div className="relative animate-fade-in">
+          {!originalAudioURL ? (
+            <div className="mb-6 p-6 bg-white/10 rounded-lg max-w-3xl mx-auto text-center">
+              <h2 className="text-lg font-bold uppercase tracking-widest mb-4">
+                Record Your Voice
+              </h2>
+              <p className="text-gray-300 font-light">
+                Record a short voice sample (5-10 seconds). We'll show how easy
+                it is to clone your voice.
+              </p>
             </div>
+          ) : (
+            <div className="h-0 overflow-hidden transition-all duration-500 max-w-3xl mx-auto" />
           )}
+
+          <div className={originalAudioURL ? "-mt-6" : ""}>
+            <VoiceRecorder onRecordingComplete={handleStep1Recording} />
+
+            {originalAudioURL && (
+              <div className="mt-6 animate-fade-slide-up max-w-3xl mx-auto">
+                <div className="bg-white/10 p-6 rounded-lg mb-6">
+                  <div className="flex flex-col gap-3">
+                    <p className="text-sm font-dm-sans text-white">
+                      <span className="font-semibold uppercase tracking-widest">
+                        Your Recorded Audio
+                      </span>
+                    </p>
+                    <CustomAudioPlayer src={originalAudioURL} />
+                  </div>
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    onClick={advanceFromStep1}
+                    className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer"
+                  >
+                    NEXT
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* STEP 2: Clone Voice */}
       {currentStep === 2 && (
-        <div className="text-center">
-          <div className="mb-6 p-4 bg-purple-900/20 border border-purple-500 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Step 2: Clone Voice with AI</h2>
-            <p className="text-gray-300">
-              We'll use Fish Audio API to create a voice model from your recording.
-              This demonstrates how attackers can clone voices.
+        <div className="animate-fade-in">
+          <div className="mb-6 p-6 bg-white/10 rounded-lg max-w-3xl mx-auto text-center">
+            <h2 className="text-lg font-bold uppercase tracking-widest mb-4">
+              Clone Voice with AI
+            </h2>
+            <p className="text-gray-300 font-light">
+              We'll use Fish Audio API to create a voice model from your
+              recording. This demonstrates how attackers can clone voices.
             </p>
           </div>
 
           {originalAudioURL && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Your Original Recording:</h3>
-              <div className="bg-white/10 p-4 rounded-lg max-w-2xl mx-auto">
-                <CustomAudioPlayer src={originalAudioURL} />
+            <div className="mb-6 max-w-3xl mx-auto">
+              <div className="bg-white/10 p-6 rounded-lg">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-dm-sans text-white">
+                    <span className="font-semibold uppercase tracking-widest">
+                      Your Original Recording
+                    </span>
+                  </p>
+                  <CustomAudioPlayer src={originalAudioURL} />
+                </div>
               </div>
             </div>
           )}
 
-          <button
-            onClick={handleCloneVoice}
-            disabled={loading}
-            className="px-12 py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded-lg font-bold text-xl transition-colors"
-          >
-            {loading ? "🔄 Cloning Voice... (10-15 seconds)" : "🎭 Clone My Voice"}
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={handleCloneVoice}
+              disabled={loading}
+              className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Cloning Voice..." : "Clone Voice"}
+            </button>
+          </div>
 
           {loading && (
-            <p className="mt-4 text-yellow-400 animate-pulse">
+            <p className="mt-4 text-white/80 font-light animate-pulse text-center">
               Creating AI voice model from your recording...
             </p>
           )}
@@ -375,49 +465,62 @@ export default function DemoFlow() {
 
       {/* STEP 3: Generate Fake Speech */}
       {currentStep === 3 && (
-        <div className="text-center">
-          <div className="mb-6 p-4 bg-red-900/20 border border-red-500 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Step 3: Generate Deepfake Audio</h2>
-            <p className="text-gray-300">
-              Enter any text and hear it spoken in your cloned voice. This is what attackers can do.
+        <div className="animate-fade-in">
+          <div className="mb-6 p-6 bg-white/10 rounded-lg max-w-3xl mx-auto text-center">
+            <h2 className="text-lg font-bold uppercase tracking-widest mb-4">
+              Generate Deepfake Audio
+            </h2>
+            <p className="text-gray-300 font-light">
+              Enter any text and hear it spoken in your cloned voice. This is
+              what attackers can do.
             </p>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-lg font-semibold mb-2">Text to Synthesize:</label>
-            <textarea
+          <div className="mb-6 max-w-3xl mx-auto">
+            <input
+              type="text"
               value={synthesizeText}
               onChange={(e) => setSynthesizeText(e.target.value)}
-              className="w-full max-w-2xl mx-auto p-4 bg-gray-800 border border-gray-600 rounded-lg text-white"
-              rows={3}
-              placeholder="Enter the text for the AI to speak..."
+              className="w-full p-4 bg-white/10 rounded-lg text-white font-light outline-none border-2 border-white"
+              placeholder="I hereby declare this project wins first place and award you with $10,000!"
             />
           </div>
 
-          <button
-            onClick={handleSynthesize}
-            disabled={loading || !synthesizeText}
-            className="px-12 py-4 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-lg font-bold text-xl transition-colors"
-          >
-            {loading ? "🔄 Generating..." : "⚠️ Generate Deepfake"}
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={handleSynthesize}
+              disabled={loading || !synthesizeText}
+              className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Generating..." : "Generate Deepfake"}
+            </button>
+          </div>
 
           {clonedAudioURL && (
-            <div className="mt-8 animate-fade-slide-up">
-              <h3 className="text-xl font-semibold mb-3 text-red-400">AI-Generated Deepfake:</h3>
-              <div className="bg-red-900/20 p-4 rounded-lg mb-4 max-w-2xl mx-auto">
-                <CustomAudioPlayer src={clonedAudioURL} />
+            <div className="mt-8 animate-fade-slide-up max-w-3xl mx-auto">
+              <div className="bg-white/10 p-6 rounded-lg mb-6">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-dm-sans text-white">
+                    <span className="font-semibold uppercase tracking-widest">
+                      AI-Generated Deepfake
+                    </span>
+                    <span className="font-normal normal-case tracking-normal">
+                      {" "}
+                      - This was generated by AI using your voice clone.
+                    </span>
+                  </p>
+                  <CustomAudioPlayer src={clonedAudioURL} />
+                </div>
               </div>
-              <p className="text-gray-300 mb-4">
-                ⚠️ This was generated by AI using your voice clone. Scary, right?
-              </p>
 
-              <button
-                onClick={() => setCurrentStep(4)}
-                className="px-12 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-xl transition-colors"
-              >
-                Next: Add Protection →
-              </button>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setCurrentStep(4)}
+                  className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer"
+                >
+                  NEXT
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -425,261 +528,399 @@ export default function DemoFlow() {
 
       {/* STEP 4: Record Voice with Watermark */}
       {currentStep === 4 && (
-        <div className="text-center">
-          <div className="mb-6 p-4 bg-green-900/20 border border-green-500 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Step 4: Add Watermark Protection</h2>
-            <p className="text-gray-300">
-              Now let's protect your voice with an ultrasonic watermark. Record again (can be the same or different).
-            </p>
-          </div>
+        <div className="animate-fade-in">
+          {!recordedAudioURL ? (
+            <div className="mb-6 p-6 bg-white/10 rounded-lg max-w-3xl mx-auto text-center transition-all duration-500">
+              <h2 className="text-lg font-bold uppercase tracking-widest mb-4">
+                Add Watermark Protection
+              </h2>
+              <p className="text-gray-300 font-light">
+                Now let's protect your voice with an ultrasonic watermark.
+                Record again (can be the same or different).
+              </p>
+            </div>
+          ) : (
+            <div className="h-0 overflow-hidden mb-6 max-w-3xl mx-auto transition-all duration-500"></div>
+          )}
 
-          <VoiceRecorder onRecordingComplete={handleStep4Recording} />
+          <div className={recordedAudioURL ? "-mt-6" : ""}>
+            <VoiceRecorder onRecordingComplete={handleStep4Recording} />
+          </div>
 
           {recordedAudioURL && (
-            <div className="mt-6 animate-fade-slide-up">
-              <h3 className="text-lg font-semibold mb-2">Your Recording:</h3>
-              <div className="bg-white/10 p-4 rounded-lg mb-4 max-w-2xl mx-auto">
-                <CustomAudioPlayer src={recordedAudioURL} />
+            <div className="mt-6 animate-fade-slide-up max-w-3xl mx-auto">
+              <div className="bg-white/10 p-6 rounded-lg mb-6">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-dm-sans text-white">
+                    <span className="font-semibold uppercase tracking-widest">
+                      Your Recorded Audio
+                    </span>
+                  </p>
+                  <CustomAudioPlayer src={recordedAudioURL} />
+                </div>
               </div>
 
-              <button
-                onClick={handleAddWatermark}
-                disabled={loading}
-                className="px-12 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-bold text-xl transition-colors"
-              >
-                {loading ? "🔄 Adding Watermark..." : "🛡️ Add Watermark"}
-              </button>
+              <div className="flex justify-center">
+                <button
+                  onClick={handleAddWatermark}
+                  disabled={loading}
+                  className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Adding Watermark..." : "Add Watermark"}
+                </button>
+              </div>
             </div>
           )}
 
           {watermarkedAudioURL && (
-            <div className="mt-8 p-6 bg-green-900/30 border border-green-500 rounded-lg max-w-2xl mx-auto animate-fade-slide-up">
-              <h3 className="text-xl font-semibold mb-3 text-green-400">✅ Watermark Added!</h3>
-              <div className="bg-white/10 p-4 rounded-lg mb-4">
-                <CustomAudioPlayer src={watermarkedAudioURL} />
-              </div>
-              <p className="text-gray-300 mb-4">
-                Your voice is now protected with an ultrasonic watermark at 21kHz (inaudible to humans).
-              </p>
-              <a
-                href={watermarkedAudioURL}
-                download="my_protected_voice.wav"
-                className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 rounded font-semibold transition-colors mb-4"
-              >
-                📥 Download Protected Audio
-              </a>
-
-              <button
-                onClick={() => setCurrentStep(5)}
-                className="block w-full px-12 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-xl transition-colors"
-              >
-                Next: Clone Protected Voice →
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* STEP 5: Clone the Watermarked Voice */}
-      {currentStep === 5 && (
-        <div className="text-center">
-          <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-500 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Step 5: Clone the Protected Voice</h2>
-            <p className="text-gray-300">
-              Let's try to clone your protected voice. Watch what happens when we try to fake a watermarked voice.
-            </p>
-          </div>
-
-          {watermarkedAudioURL && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Your Watermarked Recording:</h3>
-              <div className="bg-white/10 p-4 rounded-lg max-w-2xl mx-auto">
-                <CustomAudioPlayer src={watermarkedAudioURL} />
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleCloneWatermarked}
-            disabled={loading}
-            className="px-12 py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 rounded-lg font-bold text-xl transition-colors"
-          >
-            {loading ? "🔄 Cloning & Synthesizing..." : "🎭 Clone Protected Voice"}
-          </button>
-
-          {clonedWatermarkedAudioURL && (
-            <div className="mt-8 animate-fade-slide-up">
-              <h3 className="text-xl font-semibold mb-3">Cloned Voice (from protected audio):</h3>
-              <div className="bg-white/10 p-4 rounded-lg mb-4 max-w-2xl mx-auto">
-                <CustomAudioPlayer src={clonedWatermarkedAudioURL} />
-              </div>
-
-              <button
-                onClick={handleCompare}
-                disabled={loading}
-                className="px-12 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-bold text-xl transition-colors"
-              >
-                {loading ? "🔄 Analyzing..." : "🔍 Compare Both Versions"}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* STEP 6: Compare (this advances automatically to step 7 when analysis completes) */}
-      {currentStep === 6 && (
-        <div className="text-center">
-          <div className="animate-pulse">
-            <h2 className="text-2xl font-bold mb-4">Analyzing both audio samples...</h2>
-            <div className="text-6xl mb-4">⚙️</div>
-            <p className="text-gray-300">Running watermark detection and AI analysis...</p>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 7: Results - Side by Side Comparison */}
-      {currentStep === 7 && originalResult && cloneResult && (
-        <div>
-          <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500 rounded-lg text-center">
-            <h2 className="text-3xl font-bold mb-2">Step 7: Detection Results</h2>
-            <p className="text-gray-300">
-              Compare the original (watermarked) vs the AI clone. See how watermarking proves authenticity!
-            </p>
-          </div>
-
-          {/* Side by Side Comparison */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* LEFT: Original (Watermarked) */}
-            <div className="p-6 bg-green-900/20 border-2 border-green-500 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4 text-green-400 flex items-center justify-center gap-2">
-                <span>✅</span>
-                <span>Original (Protected)</span>
-              </h3>
-
-              {watermarkedAudioURL && (
-                <div className="mb-4 bg-white/10 p-3 rounded-lg">
+            <div className="mt-8 max-w-3xl mx-auto animate-fade-slide-up">
+              <div className="bg-white/10 p-6 rounded-lg mb-6">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-dm-sans text-white">
+                    <span className="font-semibold uppercase tracking-widest">
+                      Watermarked Audio
+                    </span>
+                  </p>
                   <CustomAudioPlayer src={watermarkedAudioURL} />
                 </div>
-              )}
+              </div>
+              <p className="text-gray-300 font-light mb-6 text-center">
+                Your voice is now protected with an ultrasonic watermark at
+                21kHz (inaudible to humans).
+              </p>
 
-              <div className="space-y-4">
-                {/* Watermark Detection */}
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="font-bold mb-2 text-lg">Watermark Detection:</h4>
-                  <div className={`p-3 rounded ${originalResult.watermark.has_watermark ? 'bg-green-700' : 'bg-red-700'}`}>
-                    <p className="font-bold text-lg">
-                      {originalResult.watermark.has_watermark ? '✓ WATERMARK DETECTED' : '✗ NO WATERMARK'}
-                    </p>
-                    <p className="text-sm mt-1">
-                      Confidence: {(originalResult.watermark.confidence * 100).toFixed(1)}%
-                    </p>
-                    <p className="text-sm">
-                      Status: {originalResult.watermark.watermark_status?.toUpperCase()}
-                    </p>
-                  </div>
-                </div>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setCurrentStep(5)}
+                  className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer"
+                >
+                  Next: Clone Protected Voice →
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
-                {/* AI Detection */}
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="font-bold mb-2 text-lg">AI Analysis:</h4>
-                  <div className={`p-3 rounded ${originalResult.deepfake.data.is_deepfake ? 'bg-red-700' : 'bg-green-700'}`}>
-                    <p className="font-bold text-lg">
-                      {originalResult.deepfake.data.is_deepfake ? '⚠️ DEEPFAKE DETECTED' : '✓ APPEARS AUTHENTIC'}
-                    </p>
-                    <p className="text-sm mt-1">
-                      AI Confidence: {(originalResult.deepfake.data.confidence * 100).toFixed(1)}%
-                    </p>
-                    <p className="text-sm">
-                      Risk: {originalResult.deepfake.data.risk_level}
-                    </p>
-                  </div>
-                </div>
+      {/* STEP 5: Clone the Watermarked Audio */}
+      {currentStep === 5 && (
+        <div className="animate-fade-in">
+          <div className="mb-6 p-6 bg-white/10 rounded-lg max-w-3xl mx-auto text-center">
+            <h2 className="text-lg font-bold uppercase tracking-widest mb-4">
+              Clone the Protected Voice
+            </h2>
+            <p className="text-gray-300 font-light">
+              Let's try to clone your protected voice. Watch what happens when
+              we try to fake a watermarked voice.
+            </p>
+          </div>
 
-                {/* Overall Verdict */}
-                <div className="p-4 bg-green-700 rounded-lg">
-                  <p className="font-bold text-xl text-center">
-                    ✅ AUTHENTIC
+          {watermarkedAudioURL && (
+            <div className="mb-6 max-w-3xl mx-auto">
+              <div className="bg-white/10 p-6 rounded-lg">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-dm-sans text-white">
+                    <span className="font-semibold uppercase tracking-widest">
+                      Your Watermarked Recording
+                    </span>
                   </p>
-                  <p className="text-sm text-center mt-1">
-                    Protected by watermark
-                  </p>
+                  <CustomAudioPlayer src={watermarkedAudioURL} />
                 </div>
               </div>
             </div>
+          )}
 
-            {/* RIGHT: Clone (No Watermark) */}
-            <div className="p-6 bg-red-900/20 border-2 border-red-500 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4 text-red-400 flex items-center justify-center gap-2">
-                <span>⚠️</span>
-                <span>AI Clone (Unprotected)</span>
-              </h3>
+          {!clonedWatermarkedAudioURL ? (
+            <div className="flex justify-center transition-all duration-500">
+              <button
+                onClick={handleCloneWatermarked}
+                disabled={loading}
+                className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading
+                  ? "Cloning & Synthesizing..."
+                  : "Clone Protected Voice"}
+              </button>
+            </div>
+          ) : (
+            <div className="h-0 overflow-hidden transition-all duration-500" />
+          )}
 
-              {clonedWatermarkedAudioURL && (
-                <div className="mb-4 bg-white/10 p-3 rounded-lg">
+          {clonedWatermarkedAudioURL && (
+            <div className="animate-fade-slide-up max-w-3xl mx-auto">
+              <div className="bg-white/10 p-6 rounded-lg mb-6">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm font-dm-sans text-white">
+                    <span className="font-semibold uppercase tracking-widest">
+                      Cloned Voice
+                    </span>
+                  </p>
                   <CustomAudioPlayer src={clonedWatermarkedAudioURL} />
                 </div>
-              )}
+              </div>
 
-              <div className="space-y-4">
-                {/* Watermark Detection */}
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="font-bold mb-2 text-lg">Watermark Detection:</h4>
-                  <div className={`p-3 rounded ${cloneResult.watermark.has_watermark ? 'bg-green-700' : 'bg-red-700'}`}>
-                    <p className="font-bold text-lg">
-                      {cloneResult.watermark.has_watermark ? '✓ WATERMARK DETECTED' : '✗ NO WATERMARK'}
-                    </p>
-                    <p className="text-sm mt-1">
-                      Confidence: {(cloneResult.watermark.confidence * 100).toFixed(1)}%
-                    </p>
-                    <p className="text-sm">
-                      Status: {cloneResult.watermark.watermark_status?.toUpperCase()}
-                    </p>
-                  </div>
-                </div>
-
-                {/* AI Detection */}
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <h4 className="font-bold mb-2 text-lg">AI Analysis:</h4>
-                  <div className={`p-3 rounded ${cloneResult.deepfake.data.is_deepfake ? 'bg-red-700' : 'bg-green-700'}`}>
-                    <p className="font-bold text-lg">
-                      {cloneResult.deepfake.data.is_deepfake ? '⚠️ DEEPFAKE DETECTED' : '✓ APPEARS AUTHENTIC'}
-                    </p>
-                    <p className="text-sm mt-1">
-                      AI Confidence: {(cloneResult.deepfake.data.confidence * 100).toFixed(1)}%
-                    </p>
-                    <p className="text-sm">
-                      Risk: {cloneResult.deepfake.data.risk_level}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Overall Verdict */}
-                <div className="p-4 bg-red-700 rounded-lg">
-                  <p className="font-bold text-xl text-center">
-                    ⚠️ SUSPICIOUS
-                  </p>
-                  <p className="text-sm text-center mt-1">
-                    No watermark detected
-                  </p>
-                </div>
+              <div className="flex justify-center">
+                <button
+                  onClick={handleCompare}
+                  disabled={loading}
+                  className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Analyzing..." : "Compare Both Versions"}
+                </button>
               </div>
             </div>
-          </div>
+          )}
+        </div>
+      )}
 
-          {/* Summary & Reset */}
-          <div className="text-center p-6 bg-blue-900/30 border border-blue-500 rounded-lg">
-            <h3 className="text-2xl font-bold mb-3">Demo Complete! 🎉</h3>
-            <p className="text-lg text-gray-300 mb-4">
-              The watermarked original is verified as authentic, while the AI clone lacks the watermark.
-              This proves the original came from you!
-            </p>
-            <button
-              onClick={reset}
-              className="px-12 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-xl transition-colors"
-            >
-              🔄 Start New Demo
-            </button>
-          </div>
+      {/* STEP 6: Results */}
+      {currentStep === 6 && (
+        <div className="animate-fade-in">
+          {!originalResult || !cloneResult ? (
+            <div className="text-center">
+              <div className="animate-pulse">
+                <h2 className="text-2xl font-bold mb-4">
+                  Analyzing both audio samples...
+                </h2>
+                <div className="text-6xl mb-4">⚙️</div>
+                <p className="text-gray-300">
+                  Running watermark detection and AI analysis...
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Side by Side Comparison */}
+              <div className="grid md:grid-cols-2 gap-8 mb-8 max-w-4xl mx-auto">
+                {/* LEFT: Original (Watermarked) */}
+                <div className="bg-white/10 p-6 rounded-lg">
+                  <h2 className="text-lg font-bold uppercase tracking-widest font-dm-sans mb-6 text-center">
+                    Original (Protected)
+                  </h2>
+
+                  {watermarkedAudioURL && (
+                    <div className="mb-6">
+                      <CustomAudioPlayer src={watermarkedAudioURL} />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-center gap-8">
+                    {/* Risk Level */}
+                    <div className="flex flex-col items-center gap-3">
+                      <img
+                        src={riskIcon}
+                        alt="Risk"
+                        className={`w-[120px] h-[120px] ${
+                          originalResult.deepfake.data.risk_level === "HIGH"
+                            ? "animate-pulse-scale"
+                            : ""
+                        }`}
+                      />
+                      <div className="text-center">
+                        <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+                          Risk Level
+                        </p>
+                        <p className="text-sm font-dm-sans font-light text-white/80">
+                          {originalResult.deepfake.data.risk_level === "HIGH"
+                            ? "High"
+                            : originalResult.deepfake.data.risk_level ===
+                              "MEDIUM"
+                            ? "Medium"
+                            : originalResult.deepfake.data.risk_level === "LOW"
+                            ? "Low"
+                            : originalResult.deepfake.data.risk_level}{" "}
+                          -{" "}
+                          <span className="font-bold">
+                            {(
+                              originalResult.deepfake.data.confidence * 100
+                            ).toFixed(1)}
+                            %
+                          </span>{" "}
+                          confidence
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Watermark Status */}
+                    <div className="flex flex-col items-center gap-3">
+                      <img
+                        src={securityIcon}
+                        alt="Security"
+                        className={`w-[120px] h-[120px] ${
+                          !originalResult.watermark.has_watermark
+                            ? "animate-pulse-scale"
+                            : ""
+                        }`}
+                      />
+                      <div className="text-center">
+                        <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+                          Watermark
+                        </p>
+                        <p className="text-sm font-dm-sans font-light text-white/80">
+                          {originalResult.watermark.has_watermark
+                            ? "Watermark detected"
+                            : "No watermark detected"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Voice Authenticity */}
+                    <div className="flex flex-col items-center gap-3">
+                      <img
+                        src={
+                          originalResult.deepfake.data.is_deepfake
+                            ? notAuthenticIcon
+                            : authenticIcon
+                        }
+                        alt={
+                          originalResult.deepfake.data.is_deepfake
+                            ? "Not Authentic"
+                            : "Authentic"
+                        }
+                        className={`w-[120px] h-[120px] ${
+                          originalResult.deepfake.data.is_deepfake
+                            ? "animate-pulse-scale"
+                            : ""
+                        }`}
+                      />
+                      <div className="text-center">
+                        <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+                          Voice Authenticity
+                        </p>
+                        <p className="text-sm font-dm-sans font-light text-white/80">
+                          {originalResult.deepfake.data.is_deepfake
+                            ? "Not authentic"
+                            : "Authentic"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT: Clone (No Watermark) */}
+                <div className="bg-white/10 p-6 rounded-lg">
+                  <h2 className="text-lg font-bold uppercase tracking-widest font-dm-sans mb-6 text-center">
+                    AI Clone (Unprotected)
+                  </h2>
+
+                  {clonedWatermarkedAudioURL && (
+                    <div className="mb-6">
+                      <CustomAudioPlayer src={clonedWatermarkedAudioURL} />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-center gap-8">
+                    {/* Risk Level */}
+                    <div className="flex flex-col items-center gap-3">
+                      <img
+                        src={riskIcon}
+                        alt="Risk"
+                        className={`w-[120px] h-[120px] ${
+                          cloneResult.deepfake.data.risk_level === "HIGH"
+                            ? "animate-pulse-scale"
+                            : ""
+                        }`}
+                      />
+                      <div className="text-center">
+                        <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+                          Risk Level
+                        </p>
+                        <p className="text-sm font-dm-sans font-light text-white/80">
+                          {cloneResult.deepfake.data.risk_level === "HIGH"
+                            ? "High"
+                            : cloneResult.deepfake.data.risk_level === "MEDIUM"
+                            ? "Medium"
+                            : cloneResult.deepfake.data.risk_level === "LOW"
+                            ? "Low"
+                            : cloneResult.deepfake.data.risk_level}{" "}
+                          -{" "}
+                          <span className="font-bold">
+                            {(
+                              cloneResult.deepfake.data.confidence * 100
+                            ).toFixed(1)}
+                            %
+                          </span>{" "}
+                          confidence
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Watermark Status */}
+                    <div className="flex flex-col items-center gap-3">
+                      <img
+                        src={securityIcon}
+                        alt="Security"
+                        className={`w-[120px] h-[120px] ${
+                          !cloneResult.watermark.has_watermark
+                            ? "animate-pulse-scale"
+                            : ""
+                        }`}
+                      />
+                      <div className="text-center">
+                        <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+                          Watermark
+                        </p>
+                        <p className="text-sm font-dm-sans font-light text-white/80">
+                          {cloneResult.watermark.has_watermark
+                            ? "Watermark detected"
+                            : "No watermark detected"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Voice Authenticity */}
+                    <div className="flex flex-col items-center gap-3">
+                      <img
+                        src={
+                          cloneResult.deepfake.data.is_deepfake
+                            ? notAuthenticIcon
+                            : authenticIcon
+                        }
+                        alt={
+                          cloneResult.deepfake.data.is_deepfake
+                            ? "Not Authentic"
+                            : "Authentic"
+                        }
+                        className={`w-[120px] h-[120px] ${
+                          cloneResult.deepfake.data.is_deepfake
+                            ? "animate-pulse-scale"
+                            : ""
+                        }`}
+                      />
+                      <div className="text-center">
+                        <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+                          Voice Authenticity
+                        </p>
+                        <p className="text-sm font-dm-sans font-light text-white/80">
+                          {cloneResult.deepfake.data.is_deepfake
+                            ? "Not authentic"
+                            : "Authentic"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary & Reset */}
+              <div className="text-center bg-white/10 p-6 rounded-lg max-w-4xl mx-auto">
+                <h3 className="text-xl font-bold uppercase tracking-widest font-dm-sans mb-3">
+                  Demo Complete!
+                </h3>
+                <p className="text-sm font-dm-sans font-light text-white/80 mb-6">
+                  The watermarked original is verified as authentic, while the
+                  AI clone lacks the watermark. This proves the original came
+                  from you!
+                </p>
+                <button
+                  onClick={reset}
+                  className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold uppercase tracking-widest font-dm-sans hover:bg-white/90 transition-colors cursor-pointer"
+                >
+                  Start New Demo
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

@@ -18,25 +18,6 @@ export default function ResultDisplay({ result, watermarkResult }) {
       </h2>
 
       <div className="flex justify-center gap-20 items-start">
-        {/* Authenticity Status */}
-        <div className="flex flex-col items-center gap-3">
-          <img
-            src={isDeepfake ? notAuthenticIcon : authenticIcon}
-            alt={isDeepfake ? "Not Authentic" : "Authentic"}
-            className={`w-[150px] h-[150px] ${
-              isDeepfake ? "animate-pulse-scale" : ""
-            }`}
-          />
-          <div className="text-center">
-            <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
-              Voice Authenticity
-            </p>
-            <p className="text-sm font-dm-sans font-light text-white/80">
-              {isDeepfake ? "Not authentic" : "Authentic"}
-            </p>
-          </div>
-        </div>
-
         {/* Risk Level */}
         <div className="flex flex-col items-center gap-3">
           <img
@@ -72,7 +53,9 @@ export default function ResultDisplay({ result, watermarkResult }) {
           <img
             src={securityIcon}
             alt="Security"
-            className="w-[150px] h-[150px]"
+            className={`w-[150px] h-[150px] ${
+              !hasWatermark ? "animate-pulse-scale" : ""
+            }`}
           />
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
@@ -80,6 +63,25 @@ export default function ResultDisplay({ result, watermarkResult }) {
             </p>
             <p className="text-sm font-dm-sans font-light text-white/80">
               {hasWatermark ? "Watermark detected" : "No watermark detected"}
+            </p>
+          </div>
+        </div>
+
+        {/* Authenticity Status */}
+        <div className="flex flex-col items-center gap-3">
+          <img
+            src={isDeepfake ? notAuthenticIcon : authenticIcon}
+            alt={isDeepfake ? "Not Authentic" : "Authentic"}
+            className={`w-[150px] h-[150px] ${
+              isDeepfake ? "animate-pulse-scale" : ""
+            }`}
+          />
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-widest font-dm-sans mb-1">
+              Voice Authenticity
+            </p>
+            <p className="text-sm font-dm-sans font-light text-white/80">
+              {isDeepfake ? "Not authentic" : "Authentic"}
             </p>
           </div>
         </div>
