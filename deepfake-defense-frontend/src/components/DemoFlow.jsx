@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import VoiceRecorder from "./VoiceRecorder";
 import CustomAudioPlayer from "./CustomAudioPlayer";
+import FrequencyVisualizer from "./FrequencyVisualizer";
 import { api } from "../utils/api";
 import authenticIcon from "../assets/authentic_2px.png";
 import notAuthenticIcon from "../assets/not_authentic_2px.png";
@@ -575,9 +576,36 @@ export default function DemoFlow() {
                   <CustomAudioPlayer src={watermarkedAudioURL} />
                 </div>
               </div>
+
+              {/* Frequency Visualization - Before/After */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-white/5 p-4 rounded-lg">
+                  <p className="text-xs font-dm-sans font-semibold uppercase tracking-widest text-white/80 mb-3 text-center">
+                    Before (Original)
+                  </p>
+                  <FrequencyVisualizer
+                    audioUrl={recordedAudioURL}
+                    hasWatermark={false}
+                    title=""
+                    showWatermarkIndicator={true}
+                  />
+                </div>
+                <div className="bg-white/5 p-4 rounded-lg">
+                  <p className="text-xs font-dm-sans font-semibold uppercase tracking-widest text-white/80 mb-3 text-center">
+                    After (Protected)
+                  </p>
+                  <FrequencyVisualizer
+                    audioUrl={watermarkedAudioURL}
+                    hasWatermark={true}
+                    title=""
+                    showWatermarkIndicator={true}
+                  />
+                </div>
+              </div>
+
               <p className="text-gray-300 font-light mb-6 text-center">
                 Your voice is now protected with an ultrasonic watermark at
-                21kHz (inaudible to humans).
+                21kHz (inaudible to humans). Notice the spike at 21kHz in the protected version.
               </p>
 
               <div className="flex justify-center">
@@ -707,6 +735,16 @@ export default function DemoFlow() {
                     </div>
                   )}
 
+                  {/* Frequency Visualization */}
+                  <div className="mb-6">
+                    <FrequencyVisualizer
+                      audioUrl={watermarkedAudioURL}
+                      hasWatermark={true}
+                      title="Frequency Spectrum"
+                      showWatermarkIndicator={true}
+                    />
+                  </div>
+
                   <div className="flex flex-col items-center gap-8">
                     {/* Risk Level */}
                     <div className="flex flex-col items-center gap-3">
@@ -833,6 +871,16 @@ export default function DemoFlow() {
                     </div>
                   )}
 
+                  {/* Frequency Visualization */}
+                  <div className="mb-6">
+                    <FrequencyVisualizer
+                      audioUrl={clonedWatermarkedAudioURL}
+                      hasWatermark={false}
+                      title="Frequency Spectrum"
+                      showWatermarkIndicator={true}
+                    />
+                  </div>
+
                   <div className="flex flex-col items-center gap-8">
                     {/* Risk Level */}
                     <div className="flex flex-col items-center gap-3">
@@ -941,6 +989,23 @@ export default function DemoFlow() {
                         </p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Frequency Analysis Explanation */}
+              <div className="bg-white/10 p-6 rounded-lg max-w-4xl mx-auto mb-6">
+                <h3 className="text-lg font-bold uppercase tracking-widest font-dm-sans mb-4 text-center">
+                  What the Frequency Analysis Shows
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6 text-sm font-dm-sans font-light text-white/80">
+                  <div>
+                    <p className="font-semibold uppercase tracking-widest mb-2">Original (Protected):</p>
+                    <p>Clear spike at 21kHz shows the watermark is present. This ultrasonic signature survives recording and transmission but gets destroyed during AI voice cloning.</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold uppercase tracking-widest mb-2">AI Clone:</p>
+                    <p>No spike at 21kHz - the watermark was destroyed during cloning. AI models can't replicate ultrasonic watermarks, exposing the fake.</p>
                   </div>
                 </div>
               </div>
